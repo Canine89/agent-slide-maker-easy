@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{TOPIC_ID}} · Overview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+      /* ============================================================
+       * :root — topic 고유 색/타이포 변수 + overview UI 크롬 변수
+       *   {{SCENE_VARS}} 부분에 topic index.html의 :root { ... } 내용을 그대로 붙여넣는다.
+       *   UI 변수(--ui-*)는 어느 topic에서도 동일하게 유지.
+       * ============================================================ */
+      :root {
+        /* === {{SCENE_VARS}} — topic 팔레트 === */
+        {{SCENE_VARS}}
+        /* === UI chrome (공통) === */
+        --ui-bg: #e6e6e6;
+        --ui-strip: #ddd;
+        --ui-card: #ffffff;
+        --ui-text: #222222;
+        --ui-text-dim: #6a6a6a;
+        --ui-text-disabled: rgba(0, 0, 0, 0.24);
+        --ui-surface-light: #f2f2f2;
+        --ui-accent: {{ACCENT_HEX}};
+        --ui-accent-rgb: {{ACCENT_RGB}};
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        background: var(--ui-bg);
+        color: var(--ui-text);
+        font-family: 'Inter', 'Noto Sans KR', -apple-system, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      body { display: flex; height: 100vh; overflow: hidden; }
+
+      /* ============ Left strip ============ */
+      .strip {
+        width: 340px; flex-shrink: 0;
+        height: 100vh; overflow-y: auto;
+        padding: 16px;
+        background: var(--ui-strip);
+        border-right: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      .strip-header {
+        font-size: 11px; font-weight: 700;
+        letter-spacing: 2px; color: var(--ui-text-dim);
+        text-transform: uppercase;
+        padding: 4px 4px 12px;
+        display: flex; align-items: center; gap: 8px;
+      }
+      .strip-header::before {
+        content: ""; width: 8px; height: 8px;
+        background: var(--ui-accent); border-radius: 50%;
+      }
+      .strip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .thumb {
+        container-type: inline-size;
+        position: relative; width: 100%;
+        aspect-ratio: 16 / 9; overflow: hidden;
+        border-radius: 8px;
+        background: var(--bg, #000);
+        cursor: pointer;
+        border: 2px solid transparent;
+        box-shadow: rgba(0, 0, 0, 0.22) 0px 2px 8px;
+        transition: border-color 0.15s ease;
+      }
+      .thumb:hover { border-color: rgba(var(--ui-accent-rgb), 0.45); }
+      .thumb.active {
+        border-color: var(--ui-accent);
+        box-shadow: rgba(var(--ui-accent-rgb), 0.35) 0px 4px 14px;
+      }
+      .thumb .scene {
+        position: absolute; top: 0; left: 0;
+        transform-origin: top left;
+        transform: scale(calc(100cqw / 1920px));
+        pointer-events: none;
+      }
+      .thumb-label {
+        position: absolute; top: 4px; left: 6px;
+        background: rgba(0, 0, 0, 0.82); color: #fff;
+        padding: 2px 6px; border-radius: 4px;
+        font-size: 9px; font-weight: 600; letter-spacing: 0.5px;
+        z-index: 10; font-family: 'Inter', monospace;
+        display: inline-flex; align-items: center; gap: 4px;
+      }
+      .thumb-label code {
+        background: var(--ui-accent); color: #fff;
+        padding: 1px 4px; border-radius: 2px;
+        font-size: 8px; font-family: 'Inter', monospace;
+      }
+
+      /* ============ Right main (detail) ============ */
+      .main {
+        flex: 1; min-width: 0;
+        height: 100vh;
+        display: flex; flex-direction: column;
+        padding: 20px 24px 24px;
+      }
+      .main-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 16px; flex-shrink: 0;
+      }
+      .main-title {
+        font-size: 22px; font-weight: 700; letter-spacing: -0.3px;
+        display: flex; align-items: center; gap: 10px;
+      }
+      .main-title::before {
+        content: ""; width: 12px; height: 12px;
+        background: var(--ui-accent); border-radius: 50%;
+      }
+      .main-nav {
+        display: flex; align-items: center; gap: 12px;
+        font-family: 'Inter', monospace;
+      }
+      .nav-btn {
+        width: 36px; height: 36px; border-radius: 50%;
+        background: var(--ui-card);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        color: var(--ui-text);
+        cursor: pointer; font-size: 18px;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .nav-btn:hover { background: var(--ui-accent); color: #fff; border-color: var(--ui-accent); }
+      .nav-btn:disabled {
+        opacity: 0.35; cursor: default;
+        background: var(--ui-card); color: var(--ui-text);
+        border-color: rgba(0,0,0,0.08);
+      }
+      .nav-index {
+        font-size: 14px; font-weight: 700;
+        letter-spacing: 2px; color: var(--ui-text);
+        min-width: 90px; text-align: center;
+      }
+      .nav-index .current { color: var(--ui-accent); }
+      .nav-index .skill {
+        display: inline-block; margin-left: 12px;
+        padding: 3px 8px;
+        background: var(--ui-surface-light);
+        border-radius: 5px;
+        font-size: 11px; letter-spacing: 0.5px;
+        color: var(--ui-text);
+      }
+      .detail {
+        flex: 1; min-height: 0;
+        container-type: size;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .detail-frame {
+        width: min(100cqw, calc(100cqh * 16 / 9));
+        aspect-ratio: 16 / 9;
+        overflow: hidden; border-radius: 16px;
+        background: var(--bg, #000);
+        box-shadow:
+          rgba(0, 0, 0, 0.05) 0px 0px 0px 1px,
+          rgba(0, 0, 0, 0.28) 0px 10px 36px;
+        position: relative;
+        container-type: inline-size;
+      }
+      .detail-frame .scene {
+        position: absolute; top: 0; left: 0;
+        transform-origin: top left;
+        transform: scale(calc(100cqw / 1920px));
+        display: none;
+      }
+      .detail-frame .scene.active { display: flex; }
+
+      /* ============ Aim inspector ============ */
+      .header-right { display: flex; align-items: center; gap: 14px; }
+      .aim-btn {
+        padding: 7px 14px; border-radius: 8px;
+        background: var(--ui-card);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        color: var(--ui-text);
+        cursor: pointer; font-size: 13px; font-weight: 600;
+        font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        display: inline-flex; align-items: center; gap: 8px;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+      .aim-btn::before {
+        content: ""; width: 12px; height: 12px;
+        border: 2px solid currentColor; border-radius: 50%;
+        position: relative;
+        box-shadow: inset 0 0 0 2px var(--ui-card);
+        background: currentColor;
+      }
+      .aim-btn:hover { border-color: var(--ui-accent); color: var(--ui-accent); }
+      .aim-btn.active {
+        background: var(--ui-accent); color: #fff;
+        border-color: var(--ui-accent);
+        box-shadow: rgba(var(--ui-accent-rgb), 0.35) 0px 4px 12px;
+      }
+      .aim-btn.active::before { box-shadow: inset 0 0 0 2px var(--ui-accent); }
+      body.aim-active { cursor: crosshair; }
+      body.aim-active *:not(.aim-overlay):not(.aim-tooltip):not(.aim-toast):not(.aim-toast *) { cursor: crosshair !important; }
+      .aim-overlay {
+        position: fixed;
+        border: 2px solid var(--ui-accent);
+        background: rgba(var(--ui-accent-rgb), 0.12);
+        pointer-events: none; z-index: 9998;
+        border-radius: 2px; display: none;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+      }
+      .aim-tooltip {
+        position: fixed;
+        background: #222; color: #fff;
+        padding: 6px 10px; border-radius: 6px;
+        font-family: 'Inter', monospace; font-size: 11px;
+        max-width: 500px; overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap;
+        pointer-events: none; z-index: 9999; display: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      .aim-tooltip .tag-part { color: #8ab4ff; }
+      .aim-tooltip .cls-part { color: #ffd27a; }
+      .aim-tooltip .sep-part { color: rgba(255,255,255,0.4); }
+      .aim-toast {
+        position: fixed; bottom: 24px; right: 24px;
+        background: #222; color: #fff;
+        padding: 14px 20px; border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        z-index: 10000; opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        pointer-events: none; max-width: 420px;
+      }
+      .aim-toast.show { opacity: 1; transform: translateY(0); }
+      .aim-toast .toast-title {
+        font-size: 13px; font-weight: 700;
+        color: var(--ui-accent);
+        margin-bottom: 4px; letter-spacing: 0.3px;
+      }
+      .aim-toast .toast-sel {
+        font-family: 'Inter', monospace; font-size: 11px;
+        color: rgba(255, 255, 255, 0.75);
+        word-break: break-all; line-height: 1.4;
+      }
+
+      /* ============================================================
+       * {{SCENE_STYLES}} — topic index.html의 씬 관련 CSS를 그대로 붙여넣는다.
+       *   .scene, .scene::before, .year-mark, .eyebrow, .scene-title,
+       *   .hero-title, .hero-sub, .bullets, .stats, .stat, .flow, .flow-col,
+       *   .flow-arrow, .scene.quote, .quote-body, .quote-attrib 등.
+       *   단, body/html에 1920x1080 크기를 고정하는 규칙은 빼야 한다
+       *   (overview는 body가 뷰포트 전체).
+       * ============================================================ */
+      {{SCENE_STYLES}}
+
+      /* ============ 오버뷰 공용 풋터 요소 ============ */
+      .brand {
+        position: absolute;
+        bottom: 48px; left: 140px;
+        display: inline-flex; align-items: center; gap: 10px;
+        z-index: 50;
+      }
+      .brand-dot {
+        width: 10px; height: 10px;
+        background: var(--accent, var(--ui-accent));
+        border-radius: 50%;
+      }
+      .brand-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 20px; font-weight: 500;
+        letter-spacing: 6px;
+        color: var(--text-meta, var(--ui-text-dim));
+        text-transform: uppercase;
+      }
+      .slide-num {
+        position: absolute;
+        bottom: 48px; right: 140px;
+        font-family: 'Inter', sans-serif;
+        font-size: 20px; font-weight: 500;
+        letter-spacing: 4px;
+        color: var(--text-meta, var(--ui-text-dim));
+        z-index: 50;
+      }
+      .slide-num .skill {
+        display: inline-block;
+        padding: 4px 10px;
+        background: rgba(245, 245, 247, 0.08);
+        border-radius: 8px;
+        margin-right: 10px;
+        color: var(--text, var(--ui-text));
+        font-family: 'Inter', monospace;
+        letter-spacing: 1px;
+      }
+      .slide-num .sep { margin: 0 8px; color: var(--text-meta, var(--ui-text-dim)); }
+    </style>
+  </head>
+  <body>
+
+    <aside class="strip">
+      <div class="strip-header">{{TOPIC_ID}} · {{SLIDE_COUNT}} slides</div>
+      <div class="strip-grid" id="strip-grid"></div>
+    </aside>
+
+    <main class="main">
+      <header class="main-header">
+        <div class="main-title">{{TOPIC_ID}} · Overview</div>
+        <div class="header-right">
+          <button class="aim-btn" id="nav-aim" aria-label="aim inspector">Aim</button>
+          <div class="main-nav">
+            <button class="nav-btn" id="nav-prev" aria-label="이전">←</button>
+            <div class="nav-index">
+              <span class="current" id="nav-current">01</span>
+              <span style="opacity: 0.4; margin: 0 6px;">/</span>
+              <span>{{SLIDE_COUNT}}</span>
+              <span class="skill" id="nav-skill">title</span>
+            </div>
+            <button class="nav-btn" id="nav-next" aria-label="다음">→</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="detail">
+        <div class="detail-frame" id="detail-frame">
+
+          <!-- ============================================================
+           * {{SLIDES_HTML}} — 각 슬라이드 <div class="scene ..." data-slide="N" data-skill="..."> ... </div>
+           *   - id / clip / data-start / data-duration / data-track-index 제거
+           *   - 마지막 자식으로 .brand + .slide-num 추가
+           * ============================================================ -->
+          {{SLIDES_HTML}}
+
+        </div>
+      </div>
+    </main>
+
+    <script>
+      (function() {
+        const frame = document.getElementById('detail-frame');
+        const scenes = Array.from(frame.querySelectorAll('.scene'));
+        const stripGrid = document.getElementById('strip-grid');
+        const prevBtn = document.getElementById('nav-prev');
+        const nextBtn = document.getElementById('nav-next');
+        const currentEl = document.getElementById('nav-current');
+        const skillEl = document.getElementById('nav-skill');
+
+        scenes.forEach((scene, i) => {
+          const n = i + 1;
+          const skill = scene.dataset.skill;
+          const thumb = document.createElement('div');
+          thumb.className = 'thumb';
+          thumb.dataset.slide = n;
+
+          const clone = scene.cloneNode(true);
+          clone.classList.add('active');
+          thumb.appendChild(clone);
+
+          const label = document.createElement('div');
+          label.className = 'thumb-label';
+          label.innerHTML = `<span>${String(n).padStart(2, '0')}</span><code>${skill}</code>`;
+          thumb.appendChild(label);
+
+          thumb.addEventListener('click', () => setActive(n));
+          stripGrid.appendChild(thumb);
+        });
+
+        const thumbs = Array.from(stripGrid.querySelectorAll('.thumb'));
+        let active = 1;
+
+        function setActive(n) {
+          n = Math.max(1, Math.min(scenes.length, n));
+          active = n;
+          scenes.forEach((scene, i) => scene.classList.toggle('active', i + 1 === n));
+          thumbs.forEach((thumb, i) => thumb.classList.toggle('active', i + 1 === n));
+          currentEl.textContent = String(n).padStart(2, '0');
+          skillEl.textContent = scenes[n - 1].dataset.skill;
+          prevBtn.disabled = (n === 1);
+          nextBtn.disabled = (n === scenes.length);
+          const t = thumbs[n - 1];
+          if (t && t.scrollIntoView) t.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        prevBtn.addEventListener('click', () => setActive(active - 1));
+        nextBtn.addEventListener('click', () => setActive(active + 1));
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { setActive(active - 1); e.preventDefault(); }
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { setActive(active + 1); e.preventDefault(); }
+          if (/^[1-9]$/.test(e.key)) setActive(parseInt(e.key, 10));
+          if (e.key === '0') setActive(10);
+        });
+
+        setActive(1);
+
+        /* ============ Aim inspector ============ */
+        const aimBtn = document.getElementById('nav-aim');
+        const overlay = document.createElement('div');
+        overlay.className = 'aim-overlay';
+        document.body.appendChild(overlay);
+        const tooltip = document.createElement('div');
+        tooltip.className = 'aim-tooltip';
+        document.body.appendChild(tooltip);
+        const toast = document.createElement('div');
+        toast.className = 'aim-toast';
+        document.body.appendChild(toast);
+        let aimMode = false;
+        let toastTimer = null;
+
+        function activeSceneEl() {
+          return document.querySelector('#detail-frame .scene.active');
+        }
+
+        function buildSelector(el) {
+          if (!el || el.nodeType !== 1) return '';
+          const parts = [];
+          let cur = el;
+          while (cur && cur.nodeType === 1) {
+            if (cur.classList.contains('scene') && cur.dataset.slide) {
+              parts.unshift(`[data-slide="${cur.dataset.slide}"]`);
+              break;
+            }
+            if (cur.id) { parts.unshift('#' + cur.id); break; }
+
+            let part = cur.tagName.toLowerCase();
+            if (cur.className && typeof cur.className === 'string') {
+              const classes = cur.className.trim().split(/\s+/)
+                .filter(c => c && c !== 'active' && !c.startsWith('aim-'));
+              if (classes.length) part += '.' + classes.join('.');
+            }
+            const parent = cur.parentElement;
+            if (parent) {
+              const twins = Array.from(parent.children).filter(s =>
+                s.tagName === cur.tagName && s.className === cur.className
+              );
+              if (twins.length > 1) {
+                const idx = twins.indexOf(cur) + 1;
+                part += `:nth-of-type(${idx})`;
+              }
+            }
+            parts.unshift(part);
+            cur = parent;
+          }
+          return parts.join(' > ');
+        }
+
+        function colorize(sel) {
+          return sel
+            .replace(/\[data-slide="\d+"\]/g, m => `<span class="tag-part">${m}</span>`)
+            .replace(/\.[a-zA-Z_-][a-zA-Z0-9_-]*/g, m => `<span class="cls-part">${m}</span>`)
+            .replace(/ > /g, '<span class="sep-part"> › </span>');
+        }
+
+        function setOverlayTo(el) {
+          const rect = el.getBoundingClientRect();
+          overlay.style.display = 'block';
+          overlay.style.top = rect.top + 'px';
+          overlay.style.left = rect.left + 'px';
+          overlay.style.width = rect.width + 'px';
+          overlay.style.height = rect.height + 'px';
+          const sel = buildSelector(el);
+          tooltip.innerHTML = colorize(sel);
+          tooltip.style.display = 'block';
+          let tipTop = rect.bottom + 6;
+          let tipLeft = rect.left;
+          const tipRect = tooltip.getBoundingClientRect();
+          if (tipTop + tipRect.height > window.innerHeight - 8) tipTop = rect.top - tipRect.height - 6;
+          if (tipLeft + tipRect.width > window.innerWidth - 8) tipLeft = window.innerWidth - tipRect.width - 8;
+          if (tipLeft < 8) tipLeft = 8;
+          tooltip.style.top = tipTop + 'px';
+          tooltip.style.left = tipLeft + 'px';
+        }
+
+        function hideAim() { overlay.style.display = 'none'; tooltip.style.display = 'none'; }
+        function exitAimMode() {
+          aimMode = false;
+          document.body.classList.remove('aim-active');
+          aimBtn.classList.remove('active');
+          hideAim();
+        }
+        function enterAimMode() {
+          aimMode = true;
+          document.body.classList.add('aim-active');
+          aimBtn.classList.add('active');
+        }
+        function showToast(sel) {
+          toast.innerHTML =
+            '<div class="toast-title">✓ 복사되었습니다</div>' +
+            '<div class="toast-sel">' + sel.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+          toast.classList.add('show');
+          if (toastTimer) clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+        function copyToClipboard(text) {
+          if (navigator.clipboard && window.isSecureContext !== false) {
+            return navigator.clipboard.writeText(text).catch(() => legacyCopy(text));
+          }
+          return legacyCopy(text);
+        }
+        function legacyCopy(text) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta);
+          return Promise.resolve();
+        }
+
+        aimBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (aimMode) exitAimMode(); else enterAimMode();
+        });
+        document.addEventListener('mousemove', (e) => {
+          if (!aimMode) return;
+          const el = document.elementFromPoint(e.clientX, e.clientY);
+          const scene = activeSceneEl();
+          if (!el || !scene || !scene.contains(el)) { hideAim(); return; }
+          setOverlayTo(el);
+        });
+        document.addEventListener('click', (e) => {
+          if (!aimMode) return;
+          const el = document.elementFromPoint(e.clientX, e.clientY);
+          const scene = activeSceneEl();
+          if (!el || !scene || !scene.contains(el)) return;
+          e.preventDefault();
+          e.stopPropagation();
+          const sel = buildSelector(el);
+          copyToClipboard(sel).then(() => showToast(sel));
+          exitAimMode();
+        }, true);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && aimMode) { exitAimMode(); e.preventDefault(); }
+        });
+      })();
+    </script>
+  </body>
+</html>
