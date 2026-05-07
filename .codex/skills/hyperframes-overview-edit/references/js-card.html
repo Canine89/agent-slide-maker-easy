@@ -1,0 +1,121 @@
+<!-- ============ Text Edit mode JS (카드뉴스 variant — data-card) ============
+     사용: 카드뉴스 overview.html (1080×1080 square 또는 1080×1350 portrait).
+     삽입 위치: IIFE `(function() { ... })();` 안, 마지막 `})();` 직전. -->
+
+        /* ============ Text Edit mode ============ */
+        const editBtn = document.getElementById('nav-edit');
+        const INLINE_TAGS = new Set(['SPAN','EM','STRONG','B','I','U','A','BR','CODE','MARK','SMALL']);
+
+        function isTextOnlyLeaf(el) {
+          if (!el.children.length) return true;
+          return Array.from(el.children).every(c => INLINE_TAGS.has(c.tagName) && isTextOnlyLeaf(c));
+        }
+
+        function findEditableElements(scope) {
+          const out = [];
+          const walk = (el) => {
+            if (el.hasAttribute('aria-hidden')) return;
+            if (el.tagName === 'IMG' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+            if (isTextOnlyLeaf(el) && el.textContent.trim()) {
+              out.push(el);
+            } else {
+              Array.from(el.children).forEach(walk);
+            }
+          };
+          Array.from(scope.children).forEach(walk);
+          return out;
+        }
+
+        const origTexts = new Map();
+        let editMode = false;
+
+        function simpleSelectorFromCard(el) {
+          if (!el.className || typeof el.className !== 'string') return el.tagName.toLowerCase();
+          const parts = el.className.trim().split(/\s+/).filter(c => c && c !== 'active' && !c.startsWith('aim-') && !c.startsWith('edit-'));
+          return parts.length ? '.' + parts.join('.') : el.tagName.toLowerCase();
+        }
+
+        function enterEditMode() {
+          editMode = true;
+          document.body.classList.add('edit-mode');
+          editBtn.classList.add('active');
+          editBtn.textContent = 'Done';
+          document.querySelectorAll('#detail-frame [data-card]').forEach(card => {
+            findEditableElements(card).forEach(el => {
+              origTexts.set(el, el.innerHTML);
+              el.contentEditable = 'true';
+              el.spellcheck = false;
+            });
+          });
+        }
+
+        function exitEditMode() {
+          editMode = false;
+          document.body.classList.remove('edit-mode');
+          editBtn.classList.remove('active');
+          editBtn.textContent = 'Edit';
+          const byCard = new Map();
+          origTexts.forEach((origHTML, el) => {
+            el.removeAttribute('contenteditable');
+            const curHTML = el.innerHTML;
+            if (origHTML.trim() !== curHTML.trim()) {
+              const card = el.closest('[data-card]');
+              const num = card ? card.dataset.card : '?';
+              const skill = card ? (card.dataset.skill || '') : '';
+              const sel = simpleSelectorFromCard(el);
+              if (!byCard.has(num)) byCard.set(num, { skill, changes: [] });
+              byCard.get(num).changes.push({ sel, old: origHTML.trim(), new: curHTML.trim() });
+            }
+          });
+          origTexts.clear();
+          const totalChanges = Array.from(byCard.values()).reduce((a, v) => a + v.changes.length, 0);
+          if (totalChanges > 0) {
+            const topic = document.title.replace(/ · Card Overview.*$/, '').replace(/ · Overview.*$/, '');
+            let patch = `# Overview edits — ${topic} (${totalChanges} change${totalChanges === 1 ? '' : 's'})\n\n`;
+            Array.from(byCard.keys()).sort((a, b) => parseInt(a) - parseInt(b)).forEach(num => {
+              const { skill, changes } = byCard.get(num);
+              patch += `## Card ${num}${skill ? ' (' + skill + ')' : ''}\n`;
+              changes.forEach(c => {
+                patch += `- ${c.sel}\n  OLD: ${c.old}\n  NEW: ${c.new}\n`;
+              });
+              patch += '\n';
+            });
+            // Try POST /save (live server); fall back to clipboard (static server)
+            fetch('/save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ patch: patch }),
+            }).then(r => {
+              if (!r.ok) throw new Error('save failed: ' + r.status);
+              return r.json();
+            }).then(result => {
+              toast.innerHTML =
+                '<div class="toast-title">✓ ' + result.applied + '건 반영됨 (파일 직접 수정)</div>' +
+                '<div class="toast-sel">F5 새로고침하면 썸네일도 갱신</div>';
+              toast.classList.add('show');
+              if (toastTimer) clearTimeout(toastTimer);
+              toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+            }).catch(() => {
+              copyToClipboard(patch).then(() => {
+                toast.innerHTML =
+                  '<div class="toast-title">✎ ' + totalChanges + '개 변경 클립보드 복사됨</div>' +
+                  '<div class="toast-sel">정적 서버 — 대화창에 붙여넣어 agent 반영 요청</div>';
+                toast.classList.add('show');
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toast.classList.remove('show'), 4500);
+              });
+            });
+          }
+        }
+
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (editMode) exitEditMode(); else enterEditMode();
+        });
+
+        // 편집 모드에서 방향키·숫자키가 카드 네비게이션을 트리거하지 않게
+        document.addEventListener('keydown', (e) => {
+          if (editMode && document.activeElement && document.activeElement.isContentEditable) {
+            e.stopPropagation();
+          }
+        }, true);

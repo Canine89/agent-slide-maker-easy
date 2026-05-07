@@ -1,0 +1,36 @@
+<!-- ============ Text edit mode ============
+     삽입 위치: <style> 안, `.aim-toast .toast-sel { ... }` 규칙 직후.
+     카드 스타일 블록이 나오기 전에 두는 것이 가독성 측면에서 최선. -->
+
+      /* ============ Text edit mode ============ */
+      .edit-btn {
+        padding: 7px 14px; border-radius: 8px;
+        background: var(--ui-card);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        color: var(--ui-text);
+        cursor: pointer; font-size: 13px; font-weight: 600;
+        font-family: inherit;
+        display: inline-flex; align-items: center; gap: 8px;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+      .edit-btn::before { content: "✎"; font-size: 15px; line-height: 1; }
+      .edit-btn:hover { border-color: #2196F3; color: #2196F3; }
+      .edit-btn.active {
+        background: #2196F3; color: #fff; border-color: #2196F3;
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.35);
+      }
+      body.edit-mode #detail-frame [contenteditable="true"] {
+        outline: 2px dashed rgba(33, 150, 243, 0.45);
+        outline-offset: 2px;
+        cursor: text;
+        transition: outline-color 0.12s, background 0.12s;
+      }
+      body.edit-mode #detail-frame [contenteditable="true"]:hover {
+        outline-color: rgba(33, 150, 243, 0.8);
+        background: rgba(33, 150, 243, 0.05);
+      }
+      body.edit-mode #detail-frame [contenteditable="true"]:focus {
+        outline: 2px solid #2196F3;
+        outline-offset: 3px;
+        background: rgba(33, 150, 243, 0.08);
+      }

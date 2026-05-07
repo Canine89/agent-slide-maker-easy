@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{TOPIC_ID}} · Card Overview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+      /* ============================================================
+       * :root — variant 차원 + 토픽 팔레트
+       *   --canvas-w / --canvas-h / --card-aspect 를 variant에 맞게:
+       *   portrait (4:5): --canvas-w: 1080, --canvas-h: 1350, --card-aspect: 4 / 5
+       *   square   (1:1): --canvas-w: 1080, --canvas-h: 1080, --card-aspect: 1 / 1
+       * ============================================================ */
+      :root {
+        /* === 캔버스 variant (portrait 기본) === */
+        --canvas-w: 1080;
+        --canvas-h: 1350;
+        --card-aspect: 4 / 5;
+
+        /* === 토픽 팔레트 — 필요 시 여기에 추가 === */
+        --bg: #0B0D10;
+        --surface: #14171B;
+        --text: #F5F5F7;
+        --text-dim: rgba(245, 245, 247, 0.65);
+        --text-muted: rgba(245, 245, 247, 0.45);
+        --accent: #FFB84A;
+
+        /* === UI chrome (공통) === */
+        --ui-bg: #e6e6e6;
+        --ui-strip: #ddd;
+        --ui-card: #ffffff;
+        --ui-text: #222222;
+        --ui-text-dim: #6a6a6a;
+        --ui-surface-light: #f2f2f2;
+        --ui-accent: #FFB84A;
+        --ui-accent-rgb: 255, 184, 74;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        background: var(--ui-bg);
+        color: var(--ui-text);
+        font-family: 'Inter', 'Noto Sans KR', -apple-system, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        letter-spacing: -0.01em;
+      }
+      body { display: flex; height: 100vh; overflow: hidden; }
+
+      /* ============ Left strip ============ */
+      .strip {
+        width: 340px; flex-shrink: 0;
+        height: 100vh; overflow-y: auto;
+        padding: 16px;
+        background: var(--ui-strip);
+        border-right: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      .strip-header {
+        font-size: 11px; font-weight: 700;
+        letter-spacing: 2px; color: var(--ui-text-dim);
+        text-transform: uppercase;
+        padding: 4px 4px 12px;
+        display: flex; align-items: center; gap: 8px;
+      }
+      .strip-header::before {
+        content: ""; width: 8px; height: 8px;
+        background: var(--ui-accent); border-radius: 50%;
+      }
+      /* portrait·square 둘 다 세로 카드 → 2열이 썸네일로 적당 */
+      .strip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .thumb {
+        container-type: inline-size;
+        position: relative; width: 100%;
+        aspect-ratio: var(--card-aspect);
+        overflow: hidden;
+        border-radius: 8px;
+        background: var(--bg);
+        cursor: pointer;
+        border: 2px solid transparent;
+        box-shadow: rgba(0, 0, 0, 0.22) 0px 2px 8px;
+        transition: border-color 0.15s ease;
+      }
+      .thumb:hover { border-color: rgba(var(--ui-accent-rgb), 0.45); }
+      .thumb.active {
+        border-color: var(--ui-accent);
+        box-shadow: rgba(var(--ui-accent-rgb), 0.35) 0px 4px 14px;
+      }
+      .thumb .card {
+        position: absolute; top: 0; left: 0;
+        transform-origin: top left;
+        transform: scale(calc(100cqw / (var(--canvas-w) * 1px)));
+        pointer-events: none;
+      }
+      .thumb-label {
+        position: absolute; top: 4px; left: 6px;
+        background: rgba(0, 0, 0, 0.82); color: #fff;
+        padding: 2px 6px; border-radius: 4px;
+        font-size: 9px; font-weight: 600; letter-spacing: 0.5px;
+        z-index: 10; font-family: 'Inter', monospace;
+        display: inline-flex; align-items: center; gap: 4px;
+      }
+      .thumb-label code {
+        background: var(--ui-accent); color: #111;
+        padding: 1px 4px; border-radius: 2px;
+        font-size: 8px; font-family: 'Inter', monospace;
+      }
+
+      /* ============ Right main (detail) ============ */
+      .main {
+        flex: 1; min-width: 0;
+        height: 100vh;
+        display: flex; flex-direction: column;
+        padding: 20px 24px 24px;
+      }
+      .main-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 16px; flex-shrink: 0;
+      }
+      .main-title {
+        font-size: 22px; font-weight: 700; letter-spacing: -0.3px;
+        display: flex; align-items: center; gap: 10px;
+      }
+      .main-title::before {
+        content: ""; width: 12px; height: 12px;
+        background: var(--ui-accent); border-radius: 50%;
+      }
+      .main-nav {
+        display: flex; align-items: center; gap: 12px;
+        font-family: 'Inter', monospace;
+      }
+      .nav-btn {
+        width: 36px; height: 36px; border-radius: 50%;
+        background: var(--ui-card);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        color: var(--ui-text);
+        cursor: pointer; font-size: 18px;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .nav-btn:hover { background: var(--ui-accent); color: #111; border-color: var(--ui-accent); }
+      .nav-btn:disabled {
+        opacity: 0.35; cursor: default;
+        background: var(--ui-card); color: var(--ui-text);
+        border-color: rgba(0,0,0,0.08);
+      }
+      .nav-index {
+        font-size: 14px; font-weight: 700;
+        letter-spacing: 2px; color: var(--ui-text);
+        min-width: 90px; text-align: center;
+      }
+      .nav-index .current { color: var(--ui-accent); }
+      .nav-index .skill {
+        display: inline-block; margin-left: 12px;
+        padding: 3px 8px;
+        background: var(--ui-surface-light);
+        border-radius: 5px;
+        font-size: 11px; letter-spacing: 0.5px;
+        color: var(--ui-text);
+      }
+      .detail {
+        flex: 1; min-height: 0;
+        container-type: size;
+        display: flex; align-items: center; justify-content: center;
+      }
+      /* 세로가 긴 카드라 height 기준으로 맞추고, width가 넘치면 width 기준으로 */
+      .detail-frame {
+        height: min(100cqh, calc(100cqw * var(--canvas-h) / var(--canvas-w)));
+        aspect-ratio: var(--card-aspect);
+        overflow: hidden; border-radius: 16px;
+        background: var(--bg);
+        box-shadow:
+          rgba(0, 0, 0, 0.05) 0px 0px 0px 1px,
+          rgba(0, 0, 0, 0.28) 0px 10px 36px;
+        position: relative;
+        container-type: inline-size;
+      }
+      .detail-frame .card {
+        position: absolute; top: 0; left: 0;
+        transform-origin: top left;
+        transform: scale(calc(100cqw / (var(--canvas-w) * 1px)));
+        display: none;
+      }
+      .detail-frame .card.active { display: flex; }
+
+      /* ============ Aim inspector ============ */
+      .header-right { display: flex; align-items: center; gap: 14px; }
+      .aim-btn {
+        padding: 7px 14px; border-radius: 8px;
+        background: var(--ui-card);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        color: var(--ui-text);
+        cursor: pointer; font-size: 13px; font-weight: 600;
+        font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        display: inline-flex; align-items: center; gap: 8px;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+      .aim-btn::before {
+        content: ""; width: 12px; height: 12px;
+        border: 2px solid currentColor; border-radius: 50%;
+        position: relative;
+        box-shadow: inset 0 0 0 2px var(--ui-card);
+        background: currentColor;
+      }
+      .aim-btn:hover { border-color: var(--ui-accent); color: var(--ui-accent); }
+      .aim-btn.active {
+        background: var(--ui-accent); color: #111;
+        border-color: var(--ui-accent);
+        box-shadow: rgba(var(--ui-accent-rgb), 0.35) 0px 4px 12px;
+      }
+      .aim-btn.active::before { box-shadow: inset 0 0 0 2px var(--ui-accent); }
+      body.aim-active { cursor: crosshair; }
+      body.aim-active *:not(.aim-overlay):not(.aim-tooltip):not(.aim-toast):not(.aim-toast *) { cursor: crosshair !important; }
+      .aim-overlay {
+        position: fixed;
+        border: 2px solid var(--ui-accent);
+        background: rgba(var(--ui-accent-rgb), 0.12);
+        pointer-events: none; z-index: 9998;
+        border-radius: 2px; display: none;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+      }
+      .aim-tooltip {
+        position: fixed;
+        background: #222; color: #fff;
+        padding: 6px 10px; border-radius: 6px;
+        font-family: 'Inter', monospace; font-size: 11px;
+        max-width: 500px; overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap;
+        pointer-events: none; z-index: 9999; display: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      .aim-tooltip .tag-part { color: #8ab4ff; }
+      .aim-tooltip .cls-part { color: #ffd27a; }
+      .aim-tooltip .sep-part { color: rgba(255,255,255,0.4); }
+      .aim-toast {
+        position: fixed; bottom: 24px; right: 24px;
+        background: #222; color: #fff;
+        padding: 14px 20px; border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        z-index: 10000; opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        pointer-events: none; max-width: 420px;
+      }
+      .aim-toast.show { opacity: 1; transform: translateY(0); }
+      .aim-toast .toast-title {
+        font-size: 13px; font-weight: 700;
+        color: var(--ui-accent);
+        margin-bottom: 4px; letter-spacing: 0.3px;
+      }
+      .aim-toast .toast-sel {
+        font-family: 'Inter', monospace; font-size: 11px;
+        color: rgba(255, 255, 255, 0.75);
+        word-break: break-all; line-height: 1.4;
+      }
+
+      /* ============ Text edit mode ============ */
+      .edit-btn {
+        padding: 7px 14px; border-radius: 8px;
+        background: var(--ui-card);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        color: var(--ui-text);
+        cursor: pointer; font-size: 13px; font-weight: 600;
+        font-family: inherit;
+        display: inline-flex; align-items: center; gap: 8px;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+      .edit-btn::before { content: "✎"; font-size: 15px; line-height: 1; }
+      .edit-btn:hover { border-color: #2196F3; color: #2196F3; }
+      .edit-btn.active {
+        background: #2196F3; color: #fff; border-color: #2196F3;
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.35);
+      }
+      body.edit-mode #detail-frame [contenteditable="true"] {
+        outline: 2px dashed rgba(33, 150, 243, 0.45);
+        outline-offset: 2px;
+        cursor: text;
+        transition: outline-color 0.12s, background 0.12s;
+      }
+      body.edit-mode #detail-frame [contenteditable="true"]:hover {
+        outline-color: rgba(33, 150, 243, 0.8);
+        background: rgba(33, 150, 243, 0.05);
+      }
+      body.edit-mode #detail-frame [contenteditable="true"]:focus {
+        outline: 2px solid #2196F3;
+        outline-offset: 3px;
+        background: rgba(33, 150, 243, 0.08);
+      }
+
+      /* ============================================================
+       * {{CARD_STYLES}} — 토픽 index.html 의 .card 관련 CSS 붙여넣기.
+       *   html/body 크기 하드코드는 빼고, .card { width, height, padding, ... }
+       *   및 .eyebrow / .hero-title / .card-title / .bullets / .stat-* /
+       *   .image-* / .page-indicator 스타일을 그대로 가져온다.
+       * ============================================================ */
+      {{CARD_STYLES}}
+    </style>
+  </head>
+  <body>
+
+    <aside class="strip">
+      <div class="strip-header">{{TOPIC_ID}} · {{CARD_COUNT}} cards</div>
+      <div class="strip-grid" id="strip-grid"></div>
+    </aside>
+
+    <main class="main">
+      <header class="main-header">
+        <div class="main-title">{{TOPIC_ID}} · Card Overview</div>
+        <div class="header-right">
+          <button class="edit-btn" id="nav-edit" aria-label="text edit">Edit</button>
+          <button class="aim-btn" id="nav-aim" aria-label="aim inspector">Aim</button>
+          <div class="main-nav">
+            <button class="nav-btn" id="nav-prev" aria-label="이전">←</button>
+            <div class="nav-index">
+              <span class="current" id="nav-current">01</span>
+              <span style="opacity: 0.4; margin: 0 6px;">/</span>
+              <span>{{CARD_COUNT}}</span>
+              <span class="skill" id="nav-skill">cover</span>
+            </div>
+            <button class="nav-btn" id="nav-next" aria-label="다음">→</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="detail">
+        <div class="detail-frame" id="detail-frame">
+
+          <!-- ============================================================
+           * {{CARDS_HTML}} — 각 카드 <div class="card ..." data-card="N" data-skill="photo-cover|video-cover|stat|image-feature"> ... </div>
+           *   - id, clip, data-start/duration/track-index 제거
+           *   - 푸터 요소(.brand / .slide-num) 금지 — 카드뉴스는 영상 슬라이드가 아니다
+           * ============================================================ -->
+          {{CARDS_HTML}}
+
+        </div>
+      </div>
+    </main>
+
+    <script>
+      (function() {
+        const frame = document.getElementById('detail-frame');
+        const cards = Array.from(frame.querySelectorAll('.card'));
+        const stripGrid = document.getElementById('strip-grid');
+        const prevBtn = document.getElementById('nav-prev');
+        const nextBtn = document.getElementById('nav-next');
+        const currentEl = document.getElementById('nav-current');
+        const skillEl = document.getElementById('nav-skill');
+
+        cards.forEach((card, i) => {
+          const n = i + 1;
+          const skill = card.dataset.skill;
+          const thumb = document.createElement('div');
+          thumb.className = 'thumb';
+          thumb.dataset.card = n;
+
+          const clone = card.cloneNode(true);
+          clone.classList.add('active');
+          thumb.appendChild(clone);
+
+          const label = document.createElement('div');
+          label.className = 'thumb-label';
+          label.innerHTML = `<span>${String(n).padStart(2, '0')}</span><code>${skill}</code>`;
+          thumb.appendChild(label);
+
+          thumb.addEventListener('click', () => setActive(n));
+          stripGrid.appendChild(thumb);
+        });
+
+        const thumbs = Array.from(stripGrid.querySelectorAll('.thumb'));
+        let active = 1;
+
+        function setActive(n) {
+          n = Math.max(1, Math.min(cards.length, n));
+          active = n;
+          cards.forEach((card, i) => card.classList.toggle('active', i + 1 === n));
+          thumbs.forEach((thumb, i) => thumb.classList.toggle('active', i + 1 === n));
+          currentEl.textContent = String(n).padStart(2, '0');
+          skillEl.textContent = cards[n - 1].dataset.skill;
+          prevBtn.disabled = (n === 1);
+          nextBtn.disabled = (n === cards.length);
+          const t = thumbs[n - 1];
+          if (t && t.scrollIntoView) t.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        prevBtn.addEventListener('click', () => setActive(active - 1));
+        nextBtn.addEventListener('click', () => setActive(active + 1));
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { setActive(active - 1); e.preventDefault(); }
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { setActive(active + 1); e.preventDefault(); }
+          if (/^[1-9]$/.test(e.key)) setActive(parseInt(e.key, 10));
+          if (e.key === '0') setActive(10);
+        });
+
+        setActive(1);
+
+        /* ============ Aim inspector ============ */
+        const aimBtn = document.getElementById('nav-aim');
+        const overlay = document.createElement('div');
+        overlay.className = 'aim-overlay';
+        document.body.appendChild(overlay);
+        const tooltip = document.createElement('div');
+        tooltip.className = 'aim-tooltip';
+        document.body.appendChild(tooltip);
+        const toast = document.createElement('div');
+        toast.className = 'aim-toast';
+        document.body.appendChild(toast);
+        let aimMode = false;
+        let toastTimer = null;
+
+        function activeCardEl() {
+          return document.querySelector('#detail-frame .card.active');
+        }
+
+        function buildSelector(el) {
+          if (!el || el.nodeType !== 1) return '';
+          const parts = [];
+          let cur = el;
+          while (cur && cur.nodeType === 1) {
+            if (cur.classList.contains('card') && cur.dataset.card) {
+              parts.unshift(`[data-card="${cur.dataset.card}"]`);
+              break;
+            }
+            if (cur.id) { parts.unshift('#' + cur.id); break; }
+
+            let part = cur.tagName.toLowerCase();
+            if (cur.className && typeof cur.className === 'string') {
+              const classes = cur.className.trim().split(/\s+/)
+                .filter(c => c && c !== 'active' && !c.startsWith('aim-'));
+              if (classes.length) part += '.' + classes.join('.');
+            }
+            const parent = cur.parentElement;
+            if (parent) {
+              const twins = Array.from(parent.children).filter(s =>
+                s.tagName === cur.tagName && s.className === cur.className
+              );
+              if (twins.length > 1) {
+                const idx = twins.indexOf(cur) + 1;
+                part += `:nth-of-type(${idx})`;
+              }
+            }
+            parts.unshift(part);
+            cur = parent;
+          }
+          return parts.join(' > ');
+        }
+
+        function colorize(sel) {
+          return sel
+            .replace(/\[data-card="\d+"\]/g, m => `<span class="tag-part">${m}</span>`)
+            .replace(/\.[a-zA-Z_-][a-zA-Z0-9_-]*/g, m => `<span class="cls-part">${m}</span>`)
+            .replace(/ > /g, '<span class="sep-part"> › </span>');
+        }
+
+        function setOverlayTo(el) {
+          const rect = el.getBoundingClientRect();
+          overlay.style.display = 'block';
+          overlay.style.top = rect.top + 'px';
+          overlay.style.left = rect.left + 'px';
+          overlay.style.width = rect.width + 'px';
+          overlay.style.height = rect.height + 'px';
+          const sel = buildSelector(el);
+          tooltip.innerHTML = colorize(sel);
+          tooltip.style.display = 'block';
+          let tipTop = rect.bottom + 6;
+          let tipLeft = rect.left;
+          const tipRect = tooltip.getBoundingClientRect();
+          if (tipTop + tipRect.height > window.innerHeight - 8) tipTop = rect.top - tipRect.height - 6;
+          if (tipLeft + tipRect.width > window.innerWidth - 8) tipLeft = window.innerWidth - tipRect.width - 8;
+          if (tipLeft < 8) tipLeft = 8;
+          tooltip.style.top = tipTop + 'px';
+          tooltip.style.left = tipLeft + 'px';
+        }
+
+        function hideAim() { overlay.style.display = 'none'; tooltip.style.display = 'none'; }
+        function exitAimMode() {
+          aimMode = false;
+          document.body.classList.remove('aim-active');
+          aimBtn.classList.remove('active');
+          hideAim();
+        }
+        function enterAimMode() {
+          aimMode = true;
+          document.body.classList.add('aim-active');
+          aimBtn.classList.add('active');
+        }
+        function showToast(sel) {
+          toast.innerHTML =
+            '<div class="toast-title">✓ 복사되었습니다</div>' +
+            '<div class="toast-sel">' + sel.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+          toast.classList.add('show');
+          if (toastTimer) clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+        function copyToClipboard(text) {
+          if (navigator.clipboard && window.isSecureContext !== false) {
+            return navigator.clipboard.writeText(text).catch(() => legacyCopy(text));
+          }
+          return legacyCopy(text);
+        }
+        function legacyCopy(text) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta);
+          return Promise.resolve();
+        }
+
+        aimBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (aimMode) exitAimMode(); else enterAimMode();
+        });
+        document.addEventListener('mousemove', (e) => {
+          if (!aimMode) return;
+          const el = document.elementFromPoint(e.clientX, e.clientY);
+          const card = activeCardEl();
+          if (!el || !card || !card.contains(el)) { hideAim(); return; }
+          setOverlayTo(el);
+        });
+        document.addEventListener('click', (e) => {
+          if (!aimMode) return;
+          const el = document.elementFromPoint(e.clientX, e.clientY);
+          const card = activeCardEl();
+          if (!el || !card || !card.contains(el)) return;
+          e.preventDefault();
+          e.stopPropagation();
+          const sel = buildSelector(el);
+          copyToClipboard(sel).then(() => showToast(sel));
+          exitAimMode();
+        }, true);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && aimMode) { exitAimMode(); e.preventDefault(); }
+        });
+
+        /* ============ Text Edit mode ============ */
+        const editBtn = document.getElementById('nav-edit');
+        const INLINE_TAGS = new Set(['SPAN','EM','STRONG','B','I','U','A','BR','CODE','MARK','SMALL']);
+
+        function isTextOnlyLeaf(el) {
+          if (!el.children.length) return true;
+          return Array.from(el.children).every(c => INLINE_TAGS.has(c.tagName) && isTextOnlyLeaf(c));
+        }
+
+        function findEditableElements(scope) {
+          const out = [];
+          const walk = (el) => {
+            if (el.hasAttribute('aria-hidden')) return;
+            if (el.tagName === 'IMG' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+            if (isTextOnlyLeaf(el) && el.textContent.trim()) {
+              out.push(el);
+            } else {
+              Array.from(el.children).forEach(walk);
+            }
+          };
+          Array.from(scope.children).forEach(walk);
+          return out;
+        }
+
+        const origTexts = new Map();
+        let editMode = false;
+
+        function simpleSelectorFromCard(el) {
+          if (!el.className || typeof el.className !== 'string') return el.tagName.toLowerCase();
+          const parts = el.className.trim().split(/\s+/).filter(c => c && c !== 'active' && !c.startsWith('aim-') && !c.startsWith('edit-'));
+          return parts.length ? '.' + parts.join('.') : el.tagName.toLowerCase();
+        }
+
+        function enterEditMode() {
+          editMode = true;
+          document.body.classList.add('edit-mode');
+          editBtn.classList.add('active');
+          editBtn.textContent = 'Done';
+          document.querySelectorAll('#detail-frame [data-card]').forEach(card => {
+            findEditableElements(card).forEach(el => {
+              origTexts.set(el, el.innerHTML);
+              el.contentEditable = 'true';
+              el.spellcheck = false;
+            });
+          });
+        }
+
+        function exitEditMode() {
+          editMode = false;
+          document.body.classList.remove('edit-mode');
+          editBtn.classList.remove('active');
+          editBtn.textContent = 'Edit';
+          const byCard = new Map();
+          origTexts.forEach((origHTML, el) => {
+            el.removeAttribute('contenteditable');
+            const curHTML = el.innerHTML;
+            if (origHTML.trim() !== curHTML.trim()) {
+              const card = el.closest('[data-card]');
+              const num = card ? card.dataset.card : '?';
+              const skill = card ? (card.dataset.skill || '') : '';
+              const sel = simpleSelectorFromCard(el);
+              if (!byCard.has(num)) byCard.set(num, { skill, changes: [] });
+              byCard.get(num).changes.push({ sel, old: origHTML.trim(), new: curHTML.trim() });
+            }
+          });
+          origTexts.clear();
+          const totalChanges = Array.from(byCard.values()).reduce((a, v) => a + v.changes.length, 0);
+          if (totalChanges > 0) {
+            const topic = document.title.replace(/ · Card Overview.*$/, '').replace(/ · Overview.*$/, '');
+            let patch = `# Overview edits — ${topic} (${totalChanges} change${totalChanges === 1 ? '' : 's'})\n\n`;
+            Array.from(byCard.keys()).sort((a, b) => parseInt(a) - parseInt(b)).forEach(num => {
+              const { skill, changes } = byCard.get(num);
+              patch += `## Card ${num}${skill ? ' (' + skill + ')' : ''}\n`;
+              changes.forEach(c => {
+                patch += `- ${c.sel}\n  OLD: ${c.old}\n  NEW: ${c.new}\n`;
+              });
+              patch += '\n';
+            });
+            // Try POST /save (live server); fall back to clipboard (static server)
+            fetch('/save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ patch: patch }),
+            }).then(r => {
+              if (!r.ok) throw new Error('save failed: ' + r.status);
+              return r.json();
+            }).then(result => {
+              toast.innerHTML =
+                '<div class="toast-title">✓ ' + result.applied + '건 반영됨 (파일 직접 수정)</div>' +
+                '<div class="toast-sel">F5 새로고침하면 썸네일도 갱신</div>';
+              toast.classList.add('show');
+              if (toastTimer) clearTimeout(toastTimer);
+              toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+            }).catch(() => {
+              copyToClipboard(patch).then(() => {
+                toast.innerHTML =
+                  '<div class="toast-title">✎ ' + totalChanges + '개 변경 클립보드 복사됨</div>' +
+                  '<div class="toast-sel">정적 서버 — 대화창에 붙여넣어 agent 반영 요청</div>';
+                toast.classList.add('show');
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toast.classList.remove('show'), 4500);
+              });
+            });
+          }
+        }
+
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (editMode) exitEditMode(); else enterEditMode();
+        });
+
+        // In edit mode, don't let arrow/number keys trigger card navigation
+        document.addEventListener('keydown', (e) => {
+          if (editMode && document.activeElement && document.activeElement.isContentEditable) {
+            e.stopPropagation();
+          }
+        }, true);
+      })();
+    </script>
+  </body>
+</html>

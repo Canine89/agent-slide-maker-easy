@@ -312,6 +312,39 @@
         line-height: 1.4;
       }
 
+      /* ============ Text edit mode ============ */
+      .edit-btn {
+        padding: 7px 14px; border-radius: 8px;
+        background: var(--ui-card);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        color: var(--ui-text);
+        cursor: pointer; font-size: 13px; font-weight: 600;
+        font-family: inherit;
+        display: inline-flex; align-items: center; gap: 8px;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+      .edit-btn::before { content: "✎"; font-size: 15px; line-height: 1; }
+      .edit-btn:hover { border-color: #2196F3; color: #2196F3; }
+      .edit-btn.active {
+        background: #2196F3; color: #fff; border-color: #2196F3;
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.35);
+      }
+      body.edit-mode #detail-frame [contenteditable="true"] {
+        outline: 2px dashed rgba(33, 150, 243, 0.45);
+        outline-offset: 2px;
+        cursor: text;
+        transition: outline-color 0.12s, background 0.12s;
+      }
+      body.edit-mode #detail-frame [contenteditable="true"]:hover {
+        outline-color: rgba(33, 150, 243, 0.8);
+        background: rgba(33, 150, 243, 0.05);
+      }
+      body.edit-mode #detail-frame [contenteditable="true"]:focus {
+        outline: 2px solid #2196F3;
+        outline-offset: 3px;
+        background: rgba(33, 150, 243, 0.08);
+      }
+
       /* ============================================================
        * Scene styles (복제 — index.html과 동기화 필요)
        * ============================================================ */
@@ -683,6 +716,7 @@
       <header class="main-header">
         <div class="main-title">hangul-600 · Overview</div>
         <div class="header-right">
+          <button class="edit-btn" id="nav-edit" aria-label="text edit">Edit</button>
           <button class="aim-btn" id="nav-aim" aria-label="aim inspector">Aim</button>
           <div class="main-nav">
             <button class="nav-btn" id="nav-prev" aria-label="이전">←</button>
@@ -1101,6 +1135,123 @@
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape' && aimMode) { exitAimMode(); e.preventDefault(); }
         });
+
+        /* ============ Text Edit mode (16:9 slide variant — data-slide) ============ */
+        const editBtn = document.getElementById('nav-edit');
+        const INLINE_TAGS = new Set(['SPAN','EM','STRONG','B','I','U','A','BR','CODE','MARK','SMALL']);
+
+        function isTextOnlyLeaf(el) {
+          if (!el.children.length) return true;
+          return Array.from(el.children).every(c => INLINE_TAGS.has(c.tagName) && isTextOnlyLeaf(c));
+        }
+
+        function findEditableElements(scope) {
+          const out = [];
+          const walk = (el) => {
+            if (el.hasAttribute('aria-hidden')) return;
+            if (el.tagName === 'IMG' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+            if (isTextOnlyLeaf(el) && el.textContent.trim()) {
+              out.push(el);
+            } else {
+              Array.from(el.children).forEach(walk);
+            }
+          };
+          Array.from(scope.children).forEach(walk);
+          return out;
+        }
+
+        const origTexts = new Map();
+        let editMode = false;
+
+        function simpleSelectorFromSlide(el) {
+          if (!el.className || typeof el.className !== 'string') return el.tagName.toLowerCase();
+          const parts = el.className.trim().split(/\s+/).filter(c => c && c !== 'active' && !c.startsWith('aim-') && !c.startsWith('edit-'));
+          return parts.length ? '.' + parts.join('.') : el.tagName.toLowerCase();
+        }
+
+        function enterEditMode() {
+          editMode = true;
+          document.body.classList.add('edit-mode');
+          editBtn.classList.add('active');
+          editBtn.textContent = 'Done';
+          document.querySelectorAll('#detail-frame [data-slide]').forEach(slide => {
+            findEditableElements(slide).forEach(el => {
+              origTexts.set(el, el.innerHTML);
+              el.contentEditable = 'true';
+              el.spellcheck = false;
+            });
+          });
+        }
+
+        function exitEditMode() {
+          editMode = false;
+          document.body.classList.remove('edit-mode');
+          editBtn.classList.remove('active');
+          editBtn.textContent = 'Edit';
+          const bySlide = new Map();
+          origTexts.forEach((origHTML, el) => {
+            el.removeAttribute('contenteditable');
+            const curHTML = el.innerHTML;
+            if (origHTML.trim() !== curHTML.trim()) {
+              const slide = el.closest('[data-slide]');
+              const num = slide ? slide.dataset.slide : '?';
+              const skill = slide ? (slide.dataset.skill || '') : '';
+              const sel = simpleSelectorFromSlide(el);
+              if (!bySlide.has(num)) bySlide.set(num, { skill, changes: [] });
+              bySlide.get(num).changes.push({ sel, old: origHTML.trim(), new: curHTML.trim() });
+            }
+          });
+          origTexts.clear();
+          const totalChanges = Array.from(bySlide.values()).reduce((a, v) => a + v.changes.length, 0);
+          if (totalChanges > 0) {
+            const topic = document.title.replace(/ · Card Overview.*$/, '').replace(/ · Overview.*$/, '');
+            let patch = `# Overview edits — ${topic} (${totalChanges} change${totalChanges === 1 ? '' : 's'})\n\n`;
+            Array.from(bySlide.keys()).sort((a, b) => parseInt(a) - parseInt(b)).forEach(num => {
+              const { skill, changes } = bySlide.get(num);
+              patch += `## Slide ${num}${skill ? ' (' + skill + ')' : ''}\n`;
+              changes.forEach(c => {
+                patch += `- ${c.sel}\n  OLD: ${c.old}\n  NEW: ${c.new}\n`;
+              });
+              patch += '\n';
+            });
+            // Try POST /save (live server); fall back to clipboard (static server)
+            fetch('/save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ patch: patch }),
+            }).then(r => {
+              if (!r.ok) throw new Error('save failed: ' + r.status);
+              return r.json();
+            }).then(result => {
+              toast.innerHTML =
+                '<div class="toast-title">✓ ' + result.applied + '건 반영됨 (파일 직접 수정)</div>' +
+                '<div class="toast-sel">F5 새로고침하면 썸네일도 갱신</div>';
+              toast.classList.add('show');
+              if (toastTimer) clearTimeout(toastTimer);
+              toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+            }).catch(() => {
+              copyToClipboard(patch).then(() => {
+                toast.innerHTML =
+                  '<div class="toast-title">✎ ' + totalChanges + '개 변경 클립보드 복사됨</div>' +
+                  '<div class="toast-sel">정적 서버 — 대화창에 붙여넣어 agent 반영 요청</div>';
+                toast.classList.add('show');
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toast.classList.remove('show'), 4500);
+              });
+            });
+          }
+        }
+
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (editMode) exitEditMode(); else enterEditMode();
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (editMode && document.activeElement && document.activeElement.isContentEditable) {
+            e.stopPropagation();
+          }
+        }, true);
       })();
     </script>
   </body>

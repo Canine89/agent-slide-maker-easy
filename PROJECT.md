@@ -6,7 +6,7 @@ HyperFrames 기반 슬라이드·영상 실험장. 주제별로 독립된 서브
 
 ```
 lab-hyperframes/
-├── .claude/skills/              로컬 스킬 (슬라이드 타입 10종 등)
+├── .codex/skills/               로컬 스킬 원본 (타 에이전트 skills는 심링크)
 ├── AGENTS.md, CLAUDE.md          에이전트 가이드
 ├── PROJECT.md                    이 문서
 ├── hyperframes.json, meta.json   워크스페이스 마커
@@ -38,7 +38,7 @@ cp -r topics/_template topics/<주제-이름>
 
 # 3. index.html 작성 (에이전트에게 맡기는 경우)
 # "사주팔자 10장짜리 슬라이드 만들어줘" 처럼 지시
-# 에이전트는 .claude/skills/hyperframes-slide-work-* 스킬을 참조해
+# 에이전트는 .codex/skills/hyperframes-slide-work-* 스킬을 참조해
 # topics/<주제-이름>/index.html 을 작성
 ```
 
@@ -76,7 +76,7 @@ npx hyperframes lint topics/<주제-이름>
 
 ## 슬라이드 타입 10종 스킬
 
-`.claude/skills/hyperframes-slide-work-*` 에 각 슬라이드 타입별 SKILL.md 가 있다.
+`.codex/skills/hyperframes-slide-work-*` 에 각 슬라이드 타입별 SKILL.md 가 있다.
 에이전트가 자동 트리거한다.
 
 | 스킬 | 용도 |

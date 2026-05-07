@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1350" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Lora:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --bg: #0B0D10;
+        --surface: #14171B;
+        --text: #F5F5F7;
+        --text-dim: rgba(245, 245, 247, 0.65);
+        --text-muted: rgba(245, 245, 247, 0.45);
+        --accent: #FFB84A;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px; height: 1350px; overflow: hidden;
+        background: var(--bg); color: var(--text);
+        font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        letter-spacing: -0.01em;
+        -webkit-font-smoothing: antialiased;
+        word-break: keep-all;
+      }
+
+      .card {
+        width: 1080px; height: 1350px;
+        padding: 120px 100px;
+        display: flex; flex-direction: column;
+        position: absolute; top: 0; left: 0;
+        overflow: hidden;
+        background: var(--bg);
+      }
+
+      .cover-video-media {
+        position: absolute; top: 0; left: 0;
+        width: 1080px; height: 1350px;
+        object-fit: cover;
+        display: block;
+        z-index: 0;
+      }
+
+      .eyebrow {
+        font-size: 28px; font-weight: 600;
+        letter-spacing: 6px; color: var(--accent);
+        text-transform: uppercase;
+      }
+
+      .page-indicator {
+        position: absolute;
+        bottom: 64px; left: 50%;
+        transform: translateX(-50%);
+        font-size: 24px; font-weight: 500;
+        letter-spacing: 4px;
+        color: var(--text-muted);
+        font-variant-numeric: tabular-nums;
+        z-index: 5;
+      }
+
+      /* ---------- photo-cover ---------- */
+      .card.photo-cover { padding: 0; }
+      .photo-cover .bg-image { position: absolute; inset: 0; z-index: 0; }
+      .photo-cover .bg-image img { width: 100%; height: 100%; object-fit: cover; }
+      .photo-cover .inset-avatar {
+        position: absolute;
+        top: 80px; right: 80px;
+        width: 220px; height: 220px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid rgba(255, 255, 255, 0.7);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        z-index: 2;
+      }
+      .photo-cover .inset-avatar img { width: 100%; height: 100%; object-fit: cover; }
+      .photo-cover .hook-handle {
+        position: absolute;
+        left: 80px; bottom: 520px;
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        width: max-content;
+        max-width: 760px;
+        padding: 12px 18px 13px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.82);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+        font-size: 34px; font-weight: 600;
+        color: #fff;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      }
+      .photo-cover .hook-title {
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        padding: 260px 80px 140px;
+        z-index: 2;
+        background: linear-gradient(to top,
+          rgba(0,0,0,0.96) 0%,
+          rgba(0,0,0,0.82) 34%,
+          rgba(0,0,0,0.48) 64%,
+          transparent 100%);
+      }
+      .photo-cover .hook-title .line {
+        display: block;
+        font-size: 68px; font-weight: 800;
+        color: #fff;
+        line-height: 1.28;
+        letter-spacing: -0.02em;
+      }
+      .photo-cover .hook-title .line + .line { margin-top: 6px; }
+      .photo-cover .page-indicator {
+        color: rgba(255, 255, 255, 0.75);
+        z-index: 3;
+      }
+
+      /* ---------- video-cover ---------- */
+      .card.video-cover { padding: 0; background: transparent; z-index: 1; }
+      .video-cover .video-shade {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background:
+          linear-gradient(to bottom, rgba(0,0,0,0.18) 0%, transparent 32%),
+          linear-gradient(to top, rgba(0,0,0,0.97) 0%, rgba(0,0,0,0.84) 34%, rgba(0,0,0,0.50) 62%, rgba(0,0,0,0.12) 78%, transparent 100%);
+      }
+      .video-cover .hook-kicker {
+        position: absolute;
+        left: 80px; bottom: 350px;
+        z-index: 2;
+        font-size: 28px; font-weight: 700;
+        letter-spacing: 0.08em;
+        color: rgba(255,255,255,0.82);
+        text-transform: uppercase;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.65);
+      }
+      .video-cover .hook-title {
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        padding: 0 80px 150px;
+        z-index: 2;
+      }
+      .video-cover .hook-title .line {
+        display: block;
+        font-size: 70px; font-weight: 850;
+        color: #fff;
+        line-height: 1.22;
+        letter-spacing: -0.02em;
+        text-shadow: 0 3px 14px rgba(0,0,0,0.65);
+      }
+      .video-cover .hook-title .line + .line { margin-top: 8px; }
+      .video-cover .page-indicator {
+        color: rgba(255,255,255,0.75);
+        z-index: 3;
+      }
+
+      /* ---------- stat ---------- */
+      .stat-num {
+        font-size: 260px; font-weight: 800;
+        line-height: 1; letter-spacing: -0.05em;
+        color: var(--text);
+        font-variant-numeric: tabular-nums;
+        margin-top: 32px;
+      }
+      .stat-unit {
+        font-size: 72px; font-weight: 500;
+        color: var(--accent);
+        margin-left: 8px;
+      }
+      .stat-label {
+        font-size: 40px; font-weight: 600;
+        color: var(--text);
+        margin-top: 32px;
+      }
+      .stat-desc {
+        font-size: 32px; font-weight: 400;
+        color: var(--text-dim);
+        margin-top: 20px;
+        line-height: 1.45;
+        max-width: 800px;
+      }
+      .card.stat-card { justify-content: center; align-items: center; text-align: center; }
+
+      /* ---------- image-feature ---------- */
+      .card.image-feature { padding: 0; background: #0B0D10; }
+      .image-feature .feature-bg {
+        position: absolute; inset: -40px;
+        z-index: 0;
+        background-size: cover;
+        background-position: center;
+        filter: blur(48px) brightness(0.45);
+        transform: scale(1.12);
+      }
+      .image-feature .feature-content {
+        position: relative; z-index: 1;
+        padding: 96px 80px;
+        display: flex; flex-direction: column;
+        align-items: center;
+        height: 100%;
+      }
+      .image-feature .feature-frame {
+        width: 78%;
+        aspect-ratio: 1 / 1;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+      }
+      .image-feature .feature-frame img { width: 100%; height: 100%; object-fit: cover; }
+      .image-feature .feature-headline {
+        font-size: 58px; font-weight: 700;
+        line-height: 1.25; letter-spacing: -0.02em;
+        color: #ffffff;
+        margin-top: 56px;
+        align-self: stretch;
+      }
+      .image-feature .feature-body {
+        margin-top: 28px;
+        align-self: stretch;
+      }
+      .image-feature .feature-body p {
+        font-size: 30px; font-weight: 400;
+        line-height: 1.55;
+        color: rgba(255, 255, 255, 0.82);
+      }
+      .image-feature .feature-body p + p { margin-top: 16px; }
+      .image-feature .page-indicator {
+        color: rgba(255, 255, 255, 0.65);
+        z-index: 3;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"
+         data-composition-id="main"
+         data-start="0" data-duration="20"
+         data-width="1080" data-height="1350">
+
+      <!-- ===== Card 1: photo-cover ===== -->
+      <div id="c-1" class="card clip photo-cover"
+           data-start="0" data-duration="5" data-track-index="0">
+        <div class="bg-image">
+          <img src="assets/sample.jpg" alt="후킹 배경" />
+        </div>
+        <!-- 인셋은 선택 — 필요 없으면 통째로 제거 -->
+        <div class="inset-avatar">
+          <img src="assets/sample.jpg" alt="보조 인물" />
+        </div>
+        <div class="hook-handle">@handle_name</div>
+        <div class="hook-title">
+          <span class="line">헤드라인 첫째 줄</span>
+          <span class="line">헤드라인 둘째 줄</span>
+        </div>
+        <div class="page-indicator">01 · 04</div>
+      </div>
+
+      <video id="c-2-video" class="cover-video-media clip"
+             src="assets/hook.mp4" poster="assets/sample.jpg"
+             data-start="5" data-duration="5" data-track-index="0"
+             muted autoplay loop playsinline preload="auto"></video>
+
+      <!-- ===== Card 2: video-cover overlay ===== -->
+      <div id="c-2" class="card clip video-cover"
+           data-start="5" data-duration="5" data-track-index="1">
+        <div class="video-shade" aria-hidden="true"></div>
+        <div class="hook-kicker">REAL FOOTAGE</div>
+        <div class="hook-title">
+          <span class="line">만화 아니고</span>
+          <span class="line">실제 건널목 입니다</span>
+        </div>
+        <div class="page-indicator">02 · 04</div>
+      </div>
+
+      <!-- ===== Card 3: stat ===== -->
+      <div id="c-3" class="card clip stat-card"
+           data-start="10" data-duration="5" data-track-index="0">
+        <div class="eyebrow">By the Numbers</div>
+        <div class="stat-num">1,000<span class="stat-unit">+</span></div>
+        <div class="stat-label">핵심 지표 라벨</div>
+        <div class="stat-desc">지표를 설명하는 한 줄 (출처·기간 포함 가능)</div>
+        <div class="page-indicator">03 · 04</div>
+      </div>
+
+      <!-- ===== Card 4: image-feature ===== -->
+      <div id="c-4" class="card clip image-feature"
+           data-start="15" data-duration="5" data-track-index="0">
+        <div class="feature-bg" aria-hidden="true"
+             style="background-image: url('assets/sample.jpg');"></div>
+        <div class="feature-content">
+          <div class="feature-frame">
+            <img src="assets/sample.jpg" alt="피처 이미지" />
+          </div>
+          <div class="feature-headline">이미지가 전하는 메시지 한 줄</div>
+          <div class="feature-body">
+            <p>본문 첫 번째 단락 — 맥락과 배경을 간결하게 설명.</p>
+            <p>본문 두 번째 단락 — 부연 또는 결과를 한두 문장.</p>
+          </div>
+        </div>
+        <div class="page-indicator">04 · 04</div>
+      </div>
+
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* Card 1: photo-cover (0~5) */
+      (() => {
+        const s = 0;
+        tl.from("#c-1 .bg-image img",     { scale: 1.08, duration: 1.2, ease: "power2.out" }, s + 0.0);
+        tl.from("#c-1 .inset-avatar",     { scale: 0, opacity: 0, duration: 0.7, ease: "back.out(1.7)" }, s + 0.4);
+        tl.from("#c-1 .hook-handle",      { y: 20, opacity: 0, duration: 0.6, ease: "power2.out" }, s + 0.9);
+        tl.from("#c-1 .hook-title .line", { y: 40, opacity: 0, duration: 0.7, ease: "expo.out", stagger: 0.12 }, s + 1.2);
+        tl.from("#c-1 .page-indicator",   { opacity: 0, duration: 0.5, ease: "power2.out" }, s + 2.0);
+      })();
+
+      /* Card 2: video-cover (5~10) */
+      (() => {
+        const s = 5;
+        tl.from("#c-2-video",             { scale: 1.08, duration: 1.4, ease: "power2.out" }, s + 0.0);
+        tl.from("#c-2 .hook-kicker",      { y: 18, opacity: 0, duration: 0.55, ease: "power2.out" }, s + 0.7);
+        tl.from("#c-2 .hook-title .line", { y: 42, opacity: 0, duration: 0.75, ease: "expo.out", stagger: 0.12 }, s + 1.0);
+        tl.from("#c-2 .page-indicator",   { opacity: 0, duration: 0.5, ease: "power2.out" }, s + 2.0);
+      })();
+
+      /* Card 3: stat (10~15) */
+      (() => {
+        const s = 10;
+        tl.from("#c-3 .eyebrow",    { y: -15, opacity: 0, duration: 0.5, ease: "power3.out" }, s + 0.2);
+        tl.from("#c-3 .stat-num",   { scale: 0.85, opacity: 0, duration: 0.9, ease: "back.out(1.6)" }, s + 0.5);
+        tl.from("#c-3 .stat-label", { y: 20, opacity: 0, duration: 0.6, ease: "power2.out" }, s + 1.3);
+        tl.from("#c-3 .stat-desc",  { opacity: 0, duration: 0.6, ease: "power2.out" }, s + 1.6);
+        tl.from("#c-3 .page-indicator", { opacity: 0, duration: 0.5, ease: "power2.out" }, s + 2.0);
+      })();
+
+      /* Card 4: image-feature (15~20) */
+      (() => {
+        const s = 15;
+        tl.from("#c-4 .feature-bg",        { scale: 1.22, duration: 1.2, ease: "power2.out" }, s + 0.0);
+        tl.from("#c-4 .feature-frame",     { scale: 0.9, opacity: 0, duration: 0.9, ease: "power3.out" }, s + 0.3);
+        tl.from("#c-4 .feature-headline",  { y: 24, opacity: 0, duration: 0.7, ease: "expo.out" }, s + 1.0);
+        tl.from("#c-4 .feature-body p",    { y: 16, opacity: 0, duration: 0.6, ease: "power2.out", stagger: 0.12 }, s + 1.4);
+        tl.from("#c-4 .page-indicator",    { opacity: 0, duration: 0.5, ease: "power2.out" }, s + 2.1);
+      })();
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

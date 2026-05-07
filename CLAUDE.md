@@ -46,7 +46,7 @@ https://hyperframes.heygen.com/llms.txt
 
 ```
 lab-hyperframes/
-├── .claude/skills/              로컬 스킬 (슬라이드 타입 10종 포함)
+├── .codex/skills/               로컬 스킬 원본 (타 에이전트 skills는 심링크)
 ├── PROJECT.md                    사용자 가이드 (전체 흐름 설명)
 ├── hyperframes.json, meta.json   워크스페이스 마커
 ├── topics/
@@ -69,7 +69,7 @@ lab-hyperframes/
 
 1. **템플릿 복사**: `cp -r topics/_template topics/<주제-이름>`
 2. **meta.json 수정**: `topics/<주제-이름>/meta.json`의 `id`/`name`을 `<주제-이름>`으로 변경 — 렌더 파일명에 반영됨
-3. **index.html 작성**: `.claude/skills/hyperframes-slide-work-*` 스킬을 참조해 슬라이드 타입별 HTML + GSAP 작성
+3. **index.html 작성**: `.codex/skills/hyperframes-slide-work-*` 스킬을 참조해 슬라이드 타입별 HTML + GSAP 작성
 4. **preview / render / snapshot** 모두 `topics/<주제-이름>` 경로를 타겟으로 실행
 
 **절대 루트의 `index.html`, `assets/`, `renders/`에 파일을 만들지 말 것.** 모든 작업물은 해당 주제 폴더 안에 둔다.
