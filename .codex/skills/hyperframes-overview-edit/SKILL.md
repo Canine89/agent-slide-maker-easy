@@ -123,6 +123,8 @@ bash .codex/skills/hyperframes-overview-edit/serve-live.sh topics/<주제> <포�
 - **인라인 태그 보존** — `<em>`, `<strong>`, `<br>`, `<span>` 등은 innerHTML 레벨에서 diff 되므로 편집 중에도 유지됨
 - **세션 내 일시 저장** — 새로고침 전에 Done 클릭해 패치 복사할 것
 - **썸네일 동기화** — Done 클릭 시 변경된 카드/슬라이드의 좌측 스트립 썸네일 clone을 오른쪽 최신 DOM에서 즉시 재생성한다. PDF/내보내기 전에 새로고침할 필요가 없게 유지해야 한다.
+- **썸네일 렌더 일치** — 좌측 썸네일은 유지하되, 우측 편집 화면과 같은 display 모델을 써야 한다. 16:9 슬라이드는 `.thumb .scene { display: flex; }`, 카드뉴스는 `.thumb .card { display: flex; }` 를 명시한다. 이 규칙이 빠지면 같은 DOM clone이어도 flex 레이아웃이 달라져 썸네일과 편집 화면이 다르게 보인다.
+- **PDF/내보내기 기준** — 브라우저 PDF/print/export 는 좌측 strip clone이 아니라 우측 `#detail-frame` 의 원본 카드/슬라이드를 기준으로 한다. overview 템플릿에는 `@media print` 로 `.strip`, `.main-header`, Aim/Edit UI를 숨기고 `.detail-frame` 내부 원본만 페이지 단위로 출력하는 CSS를 포함해야 한다.
 
 ## 통합 테스트
 
@@ -131,9 +133,11 @@ bash .codex/skills/hyperframes-overview-edit/serve-live.sh topics/<주제> <포�
 - [ ] 우상단 Edit 버튼이 Aim 버튼 왼쪽에 보이는지
 - [ ] 클릭 시 텍스트 요소들에 파란 점선 아웃라인이 뜨는지 (호버 시 진해지고, 포커스 시 실선)
 - [ ] 한 단어 수정 후 Done 누르면 live 서버에서는 "✓ N건 반영됨", static 서버에서는 "✎ N개 변경 클립보드 복사됨" 토스트가 뜨는지
+- [ ] Done 후 왼쪽 축소 썸네일이 오른쪽 편집 화면과 같은 레이아웃/텍스트로 즉시 갱신되는지
+- [ ] PDF/print 결과가 왼쪽 strip 없이 원본 슬라이드/카드 페이지만 포함하는지
 - [ ] static 서버 fallback에서 붙여넣기한 패치가 위 포맷과 정확히 일치하는지
 
-4개 모두 통과해야 기능 OK.
+6개 모두 통과해야 기능 OK.
 
 ## 관련 스킬
 

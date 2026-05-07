@@ -275,6 +275,16 @@ tl.from("#c-4 .page-indicator",   { opacity: 0, duration: 0.5, ease: "power2.out
 
 > **필수 참조**: overview.html 은 **반드시 `hyperframes-overview-edit` 스킬의 Edit 기능을 포함**해야 한다. 새로 생성하든 기존 파일을 수정하든, Edit 버튼 + CSS + JS(카드뉴스는 `js-card.html` variant) 가 누락되지 않도록 해당 스킬을 참조해 체크한다. 검증 커맨드: `grep -L "class=\"edit-btn\"" topics/*/overview.html`.
 
+### 썸네일·내보내기 필수 규칙
+
+좌측 스트립 썸네일은 반드시 유지한다. 단, 썸네일은 별도 디자인이 아니라 우측 디테일 카드 DOM을 축소한 미리보기여야 한다.
+
+- 썸네일은 `card.cloneNode(true)` 로 만들고, `.thumb .card { display: flex; transform: scale(...); }` 를 명시한다. 우측 `.detail-frame .card.active { display: flex; }` 와 같은 display 모델이어야 축소 썸네일과 편집 화면 레이아웃이 일치한다.
+- 썸네일 라벨(`.thumb-label`)은 카드 내용을 가리지 않게 기본 숨김, hover 때만 표시한다.
+- Edit → Done 후에는 변경된 카드 번호에 대해 `syncThumbFromCard(n)` 로 오른쪽 최신 DOM을 다시 clone 해서 좌측 썸네일을 즉시 갱신한다.
+- PDF/print/export 는 좌측 strip 기준이 아니라 우측 `#detail-frame` 안의 원본 카드 기준이어야 한다. `@media print` 에서 `.strip`, `.main-header`, Aim/Edit UI를 숨기고, `.detail-frame .card` 전체를 카드 크기별 페이지 단위로 출력한다.
+- 이 규칙은 샘플뿐 아니라 새로 생성하는 모든 카드뉴스 overview.html 에 적용한다.
+
 ### 1. 템플릿 복사
 
 ```bash

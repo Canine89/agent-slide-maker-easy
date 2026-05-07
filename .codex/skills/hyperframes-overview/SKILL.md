@@ -29,6 +29,16 @@ description: >-
 
 > **필수 참조**: 이 스킬로 overview.html 을 만들거나 수정할 때는 **반드시 `hyperframes-overview-edit` 스킬**도 함께 적용해야 한다. CSS 블록·Edit 버튼·JS 블록이 빠지면 사용자가 텍스트를 수정할 수 없다. 누락 여부는 `grep -L "class=\"edit-btn\"" topics/*/overview.html` 로 한 번에 확인 가능.
 
+## 썸네일·내보내기 필수 규칙
+
+좌측 스트립 썸네일은 반드시 유지한다. 단, 썸네일은 별도 디자인이 아니라 우측 디테일 슬라이드 DOM을 축소한 미리보기여야 한다.
+
+- 썸네일은 `scene.cloneNode(true)` 로 만들고, `.thumb .scene { display: flex; transform: scale(...); }` 를 명시한다. 우측 `.detail-frame .scene.active { display: flex; }` 와 같은 display 모델이어야 축소 썸네일과 편집 화면 레이아웃이 일치한다.
+- 썸네일 라벨(`.thumb-label`)은 슬라이드 내용을 가리지 않게 기본 숨김, hover 때만 표시한다.
+- Edit → Done 후에는 변경된 슬라이드 번호에 대해 `syncThumbFromScene(n)` 로 오른쪽 최신 DOM을 다시 clone 해서 좌측 썸네일을 즉시 갱신한다.
+- PDF/print/export 는 좌측 strip 기준이 아니라 우측 `#detail-frame` 안의 원본 슬라이드 기준이어야 한다. `@media print` 에서 `.strip`, `.main-header`, Aim/Edit UI를 숨기고, `.detail-frame .scene` 전체를 1920×1080 페이지 단위로 출력한다.
+- 이 규칙은 샘플 토픽뿐 아니라 새로 생성하는 모든 16:9 overview.html 에 적용한다.
+
 ## 파일 구조
 
 ```

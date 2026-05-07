@@ -89,6 +89,7 @@
         top: 0; left: 0;
         transform-origin: top left;
         transform: scale(calc(100cqw / 1920px));
+        display: flex;
         pointer-events: none;
       }
       .thumb-label {
@@ -113,6 +114,11 @@
         font-size: 8px;
         font-family: 'Inter', monospace;
       }
+      .thumb-label {
+        opacity: 0;
+        transition: opacity 0.12s ease;
+      }
+      .thumb:hover .thumb-label { opacity: 0.92; }
 
       /* ============ Right main (detail) ============ */
       .main {
@@ -343,6 +349,68 @@
         outline: 2px solid #2196F3;
         outline-offset: 3px;
         background: rgba(33, 150, 243, 0.08);
+      }
+
+      @page {
+        size: 16in 9in;
+        margin: 0;
+      }
+      @media print {
+        html, body {
+          width: auto;
+          height: auto;
+          overflow: visible;
+          display: block;
+          background: #fff;
+        }
+        .strip,
+        .main-header,
+        .aim-overlay,
+        .aim-tooltip,
+        .aim-toast {
+          display: none !important;
+        }
+        .main {
+          display: block;
+          width: auto;
+          height: auto;
+          padding: 0;
+          overflow: visible;
+        }
+        .detail {
+          display: block;
+          width: auto;
+          height: auto;
+          overflow: visible;
+          container-type: normal;
+        }
+        .detail-frame {
+          display: block;
+          width: auto;
+          height: auto;
+          aspect-ratio: auto;
+          overflow: visible;
+          border-radius: 0;
+          box-shadow: none;
+          background: transparent;
+          container-type: normal;
+        }
+        .detail-frame .scene,
+        .detail-frame .scene.active {
+          display: flex !important;
+          position: relative;
+          top: auto;
+          left: auto;
+          width: 1920px;
+          height: 1080px;
+          transform: none;
+          break-after: page;
+          page-break-after: always;
+        }
+        .detail-frame .scene:last-child {
+          break-after: auto;
+          page-break-after: auto;
+        }
       }
 
       /* ============================================================
