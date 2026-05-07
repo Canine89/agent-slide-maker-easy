@@ -74,7 +74,7 @@ bash .codex/skills/hyperframes-overview-edit/serve-live.sh topics/<주제> <포�
 ```
 
 - 사용자가 대화창에 패치 붙여넣을 필요 없음
-- 토스트: "✓ N건 반영됨 (파일 직접 수정) — F5 새로고침하면 썸네일도 갱신"
+- 토스트: "✓ N건 반영됨 (파일 직접 수정) — 오른쪽 화면과 왼쪽 썸네일이 함께 갱신됨"
 - agent 가 대화에 참여하지 않아도 편집이 저장됨 (단, 렌더는 여전히 사용자 승인 후)
 
 ### 2. Static 모드 (fallback) — `serve.sh`
@@ -122,7 +122,7 @@ bash .codex/skills/hyperframes-overview-edit/serve-live.sh topics/<주제> <포�
 - **텍스트 전용 leaf만 편집 가능** — IMG, `aria-hidden`, 블록 자식(div/ul/ol/section) 가진 요소는 잠금
 - **인라인 태그 보존** — `<em>`, `<strong>`, `<br>`, `<span>` 등은 innerHTML 레벨에서 diff 되므로 편집 중에도 유지됨
 - **세션 내 일시 저장** — 새로고침 전에 Done 클릭해 패치 복사할 것
-- **썸네일은 정적** — 좌측 스트립 썸네일은 편집 반영 안 됨. 수정 후 파일 저장 + 새로고침해야 썸네일도 갱신
+- **썸네일 동기화** — Done 클릭 시 변경된 카드/슬라이드의 좌측 스트립 썸네일 clone을 오른쪽 최신 DOM에서 즉시 재생성한다. PDF/내보내기 전에 새로고침할 필요가 없게 유지해야 한다.
 
 ## 통합 테스트
 

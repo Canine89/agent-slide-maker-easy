@@ -70,6 +70,9 @@
           origTexts.clear();
           const totalChanges = Array.from(byCard.values()).reduce((a, v) => a + v.changes.length, 0);
           if (totalChanges > 0) {
+            if (typeof syncThumbFromCard === 'function') {
+              Array.from(byCard.keys()).forEach(num => syncThumbFromCard(parseInt(num, 10)));
+            }
             const topic = document.title.replace(/ · Card Overview.*$/, '').replace(/ · Overview.*$/, '');
             let patch = `# Overview edits — ${topic} (${totalChanges} change${totalChanges === 1 ? '' : 's'})\n\n`;
             Array.from(byCard.keys()).sort((a, b) => parseInt(a) - parseInt(b)).forEach(num => {
@@ -91,7 +94,7 @@
             }).then(result => {
               toast.innerHTML =
                 '<div class="toast-title">✓ ' + result.applied + '건 반영됨 (파일 직접 수정)</div>' +
-                '<div class="toast-sel">F5 새로고침하면 썸네일도 갱신</div>';
+                '<div class="toast-sel">오른쪽 화면과 왼쪽 썸네일이 함께 갱신됨</div>';
               toast.classList.add('show');
               if (toastTimer) clearTimeout(toastTimer);
               toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);

@@ -921,6 +921,23 @@
         const currentEl = document.getElementById('nav-current');
         const skillEl = document.getElementById('nav-skill');
 
+        function cleanThumbClone(clone) {
+          clone.classList.add('active');
+          clone.removeAttribute('contenteditable');
+          clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+          return clone;
+        }
+
+        function syncThumbFromScene(n) {
+          const scene = scenes[n - 1];
+          const thumb = thumbs[n - 1];
+          if (!scene || !thumb) return;
+          const oldClone = thumb.querySelector('.scene');
+          const clone = cleanThumbClone(scene.cloneNode(true));
+          if (oldClone) oldClone.replaceWith(clone);
+          else thumb.insertBefore(clone, thumb.firstChild);
+        }
+
         // Build thumbs by cloning each scene into the strip
         scenes.forEach((scene, i) => {
           const n = i + 1;
@@ -929,8 +946,7 @@
           thumb.className = 'thumb';
           thumb.dataset.slide = n;
 
-          const clone = scene.cloneNode(true);
-          clone.classList.add('active');
+          const clone = cleanThumbClone(scene.cloneNode(true));
           thumb.appendChild(clone);
 
           const label = document.createElement('div');
@@ -1204,6 +1220,7 @@
           origTexts.clear();
           const totalChanges = Array.from(bySlide.values()).reduce((a, v) => a + v.changes.length, 0);
           if (totalChanges > 0) {
+            Array.from(bySlide.keys()).forEach(num => syncThumbFromScene(parseInt(num, 10)));
             const topic = document.title.replace(/ · Card Overview.*$/, '').replace(/ · Overview.*$/, '');
             let patch = `# Overview edits — ${topic} (${totalChanges} change${totalChanges === 1 ? '' : 's'})\n\n`;
             Array.from(bySlide.keys()).sort((a, b) => parseInt(a) - parseInt(b)).forEach(num => {
@@ -1225,7 +1242,7 @@
             }).then(result => {
               toast.innerHTML =
                 '<div class="toast-title">✓ ' + result.applied + '건 반영됨 (파일 직접 수정)</div>' +
-                '<div class="toast-sel">F5 새로고침하면 썸네일도 갱신</div>';
+                '<div class="toast-sel">오른쪽 화면과 왼쪽 썸네일이 함께 갱신됨</div>';
               toast.classList.add('show');
               if (toastTimer) clearTimeout(toastTimer);
               toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
