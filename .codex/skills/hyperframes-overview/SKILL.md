@@ -25,7 +25,7 @@ description: >-
 - **우측 디테일**: 현재 선택된 슬라이드를 1920×1080 → 뷰포트에 맞게 축소해서 보여줌.
 - **네비**: `←/→`, `↑/↓`, `Space`, 숫자키(1–9, 0=10), 상단 버튼.
 - **Aim 인스펙터**: 우상단 `Aim` 버튼 → 요소 호버 → 클릭 → `[data-slide="3"] > div.stat:nth-of-type(2) > div.num` 형태의 CSS 셀렉터가 클립보드로 복사됨.
-- **Edit 텍스트 편집** (필수): 우상단 `✎ Edit` 버튼 → contentEditable 로 직접 수정 → Done 누르면 agent-readable 패치가 클립보드로 복사. 자세한 구현·스니펫·파서 규칙은 **`hyperframes-overview-edit`** 스킬 참조. 16:9 기준이므로 `js-slide.html` variant 를 삽입한다.
+- **Edit 텍스트 편집** (필수): 우상단 `✎ Edit` 버튼 → contentEditable 로 직접 수정 → Done 누르면 live 서버에서는 `index.html` + `overview.html` 에 즉시 저장, static 서버에서는 agent-readable 패치를 클립보드로 복사. 자세한 구현·스니펫·파서 규칙은 **`hyperframes-overview-edit`** 스킬 참조. 16:9 기준이므로 `js-slide.html` variant 를 삽입한다.
 
 > **필수 참조**: 이 스킬로 overview.html 을 만들거나 수정할 때는 **반드시 `hyperframes-overview-edit` 스킬**도 함께 적용해야 한다. CSS 블록·Edit 버튼·JS 블록이 빠지면 사용자가 텍스트를 수정할 수 없다. 누락 여부는 `grep -L "class=\"edit-btn\"" topics/*/overview.html` 로 한 번에 확인 가능.
 

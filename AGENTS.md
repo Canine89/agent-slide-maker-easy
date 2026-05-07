@@ -48,7 +48,7 @@ npx hyperframes preview topics/<주제-이름> --port 3000
 이 프로젝트의 리뷰 흐름은 **항상 오버뷰 먼저, 영상 렌더는 그 다음**이다.
 
 1. 카드뉴스·슬라이드를 만들면 `topics/<주제>/overview.html` 을 생성한다
-2. `bash .codex/skills/hyperframes-overview/serve.sh topics/<주제> <포트>` 로 HTTP 서빙해 사용자에게 **오버뷰 URL을 먼저 제시**한다
+2. `bash .codex/skills/hyperframes-overview/serve.sh topics/<주제> <포트>` 로 live HTTP 서빙해 사용자에게 **오버뷰 URL을 먼저 제시**한다
 3. 사용자가 내용을 검토하고 수정을 요청하면 반영 → 오버뷰 갱신 재검토
 4. 사용자가 오버뷰 내용에 **명시적으로 OK** 하고 **영상을 요청**한 뒤에만 `npx hyperframes render` 를 실행한다
 
@@ -79,8 +79,8 @@ npx hyperframes preview topics/<주제-이름> --port 3000
 **사용 흐름**:
 1. 브라우저에서 Edit 버튼 클릭 → 텍스트 요소들이 파란 점선으로 편집 가능 상태
 2. 직접 타이핑해 수정
-3. Done 클릭 → 변경사항이 agent-readable 패치로 클립보드 복사 + 토스트 알림
-4. 사용자가 대화창에 패치 붙여넣음 → agent 는 `hyperframes-overview-edit/references/patch-parser.md` 규칙에 따라 index.html + overview.html 양쪽에 반영
+3. Done 클릭 → live 서버가 `index.html` + `overview.html` 에 변경사항을 즉시 반영 + 토스트 알림
+4. static 서버로 열었거나 `/save` 실패 시에만 agent-readable 패치가 클립보드에 복사됨 → 사용자가 대화창에 붙여넣으면 agent 는 `hyperframes-overview-edit/references/patch-parser.md` 규칙에 따라 양쪽 파일에 반영
 
 ## SNS 카드뉴스 템플릿 규칙 — 4개만 허용
 

@@ -3,9 +3,10 @@ name: hyperframes-overview-edit
 description: >-
   모든 overview.html 에 반드시 포함해야 하는 텍스트 직접 편집 기능. 브라우저에서
   Edit 버튼(✎)을 눌러 contentEditable로 텍스트를 수정한 뒤 Done 을 누르면
+  live 서버에서는 index.html + overview.html 에 즉시 저장되고, static 서버에서는
   agent-readable 패치가 클립보드로 복사된다. 사용자가 그 패치를 대화에 붙여넣으면
-  agent는 이 스킬의 `references/patch-parser.md` 규칙대로 index.html + overview.html
-  양쪽에 반영한다. 트리거: overview 편집, 오버뷰 텍스트 수정, edit button, 패치
+  agent는 이 스킬의 `references/patch-parser.md` 규칙대로 양쪽 파일에 반영한다.
+  트리거: overview 편집, 오버뷰 텍스트 수정, edit button, 패치
   붙여넣기, overview.html 만들기, overview 수정, Overview edits (패치 헤더).
 ---
 
@@ -16,7 +17,7 @@ description: >-
 HyperFrames overview.html 에는 **항상** 텍스트 인라인 편집 기능이 있어야 한다. 이 스킬은:
 
 1. overview 생성·수정 시 기능을 빠짐없이 포함시키는 **체크리스트·스니펫 소스**
-2. 사용자가 브라우저에서 편집 후 생성한 **패치를 agent가 파일에 반영하는 파서 규칙**
+2. live 서버 저장 및 static fallback 패치를 agent가 파일에 반영하는 파서 규칙
 
 두 용도 모두 관장한다.
 
@@ -129,8 +130,8 @@ bash .codex/skills/hyperframes-overview-edit/serve-live.sh topics/<주제> <포�
 
 - [ ] 우상단 Edit 버튼이 Aim 버튼 왼쪽에 보이는지
 - [ ] 클릭 시 텍스트 요소들에 파란 점선 아웃라인이 뜨는지 (호버 시 진해지고, 포커스 시 실선)
-- [ ] 한 단어 수정 후 Done 누르면 토스트 "✎ 1개 텍스트 변경 클립보드 복사됨" 뜨는지
-- [ ] 붙여넣기한 패치가 위 포맷과 정확히 일치하는지
+- [ ] 한 단어 수정 후 Done 누르면 live 서버에서는 "✓ N건 반영됨", static 서버에서는 "✎ N개 변경 클립보드 복사됨" 토스트가 뜨는지
+- [ ] static 서버 fallback에서 붙여넣기한 패치가 위 포맷과 정확히 일치하는지
 
 4개 모두 통과해야 기능 OK.
 
