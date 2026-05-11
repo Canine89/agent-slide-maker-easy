@@ -1,20 +1,21 @@
 ---
 name: hyperframes-overview-edit
 description: >-
-  모든 overview.html 에 반드시 포함해야 하는 텍스트 직접 편집 기능. 브라우저에서
-  Edit 버튼(✎)을 눌러 contentEditable로 텍스트를 수정한 뒤 Done 을 누르면
-  live 서버에서는 index.html + overview.html 에 즉시 저장되고, static 서버에서는
-  agent-readable 패치가 클립보드로 복사된다. 사용자가 그 패치를 대화에 붙여넣으면
-  agent는 이 스킬의 `references/patch-parser.md` 규칙대로 양쪽 파일에 반영한다.
-  트리거: overview 편집, 오버뷰 텍스트 수정, edit button, 패치
-  붙여넣기, overview.html 만들기, overview 수정, Overview edits (패치 헤더).
+  `hyperframes-overview`의 하위 필수 편집 모듈. 모든 overview.html 에 반드시
+  포함해야 하는 Edit 버튼, contentEditable 텍스트 수정, live 저장, static 패치
+  fallback 기능을 제공한다. 새 오버뷰 생성 시에는 상위 `hyperframes-overview`가
+  이 모듈을 함께 적용한다. 단독 사용은 기존 overview의 Edit 기능 누락 보강,
+  오버뷰 텍스트 수정, 사용자가 붙여넣은 `# Overview edits — ...` 패치 반영에
+  한정한다.
 ---
 
-# Overview Text Edit Feature (필수)
+# Overview Text Edit Module (필수 하위 모듈)
 
 ## 이 스킬의 역할
 
-HyperFrames overview.html 에는 **항상** 텍스트 인라인 편집 기능이 있어야 한다. 이 스킬은:
+이 스킬은 `hyperframes-overview`의 하위 필수 모듈이다. HyperFrames overview.html 에는 **항상** 텍스트 인라인 편집 기능이 있어야 한다.
+
+이 스킬은:
 
 1. overview 생성·수정 시 기능을 빠짐없이 포함시키는 **체크리스트·스니펫 소스**
 2. live 서버 저장 및 static fallback 패치를 agent가 파일에 반영하는 파서 규칙
@@ -23,7 +24,7 @@ HyperFrames overview.html 에는 **항상** 텍스트 인라인 편집 기능이
 
 ## 언제 이 스킬을 쓰나
 
-- 새 overview.html을 만들 때 → **반드시 3가지 스니펫 삽입** (아래 절차)
+- 새 overview.html을 만들 때 → 상위 `hyperframes-overview`와 함께 **반드시 3가지 스니펫 삽입** (아래 절차)
 - 기존 overview.html을 수정·리뷰할 때 → **먼저 기능 누락 여부 확인** (아래 검증)
 - 사용자가 `# Overview edits — ...` 로 시작하는 패치를 붙여넣었을 때 → `references/patch-parser.md` 참조해 파일에 반영
 

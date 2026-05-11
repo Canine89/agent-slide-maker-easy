@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/subsets/Paperlogy-dynamic-subset.css">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body {
         width: 1920px; height: 1080px; overflow: hidden;
         background: #000; color: #F5F5F7;
-        font-family: system-ui, sans-serif;
+        font-family: "Paperlogy", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
       }
       .scene {
         width: 1920px; height: 1080px;
@@ -17,17 +18,132 @@
         display: flex; flex-direction: column;
         position: relative;
         overflow: hidden;
+        transform-origin: center center;
       }
       .scene.center { justify-content: center; align-items: center; text-align: center; }
       .eyebrow { font-size: 28px; letter-spacing: 8px; color: #86868B; text-transform: uppercase; }
       .hero-title { font-size: 280px; font-weight: 800; letter-spacing: -8px; margin-top: 24px; }
       .hero-sub { font-size: 36px; color: #86868B; margin-top: 32px; }
+      .scene-title {
+        font-size: 92px;
+        font-weight: 800;
+        line-height: 1.08;
+        margin-top: 24px;
+        letter-spacing: 0;
+      }
+      .flow {
+        display: grid;
+        grid-template-columns: 1fr 120px 1fr;
+        gap: 40px;
+        margin-top: 56px;
+        flex: 1;
+        max-height: 620px;
+        align-items: stretch;
+        perspective: 1400px;
+      }
+      .flow-col {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.14);
+        border-radius: 24px;
+        padding: 44px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        transform-style: preserve-3d;
+        will-change: transform, opacity, filter;
+      }
+      .flow-col.after {
+        border-color: rgba(10,132,255,0.58);
+        background: linear-gradient(135deg, rgba(10,132,255,0.22), rgba(255,255,255,0.06));
+      }
+      .flow-label {
+        align-self: flex-start;
+        padding: 8px 20px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.1);
+        color: #C7C7CC;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+      .flow-col.after .flow-label {
+        background: #0A84FF;
+        color: #fff;
+      }
+      .flow-heading {
+        margin-top: 34px;
+        font-size: 52px;
+        font-weight: 800;
+        line-height: 1.16;
+        letter-spacing: 0;
+      }
+      .flow-list {
+        list-style: none;
+        margin-top: 34px;
+        display: grid;
+        gap: 18px;
+      }
+      .flow-list li {
+        position: relative;
+        padding-left: 28px;
+        color: #D1D1D6;
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.42;
+      }
+      .flow-list li::before {
+        content: "-";
+        position: absolute;
+        left: 0;
+        color: #0A84FF;
+      }
+      .flow-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0A84FF;
+        font-size: 80px;
+        font-weight: 200;
+      }
+      .flow-link {
+        width: 120px;
+        height: 260px;
+        overflow: visible;
+      }
+      .flow-link path {
+        fill: none;
+        stroke: #0A84FF;
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: drop-shadow(0 0 18px rgba(10,132,255,0.55));
+      }
+      .flow-link circle {
+        fill: #0A84FF;
+        filter: drop-shadow(0 0 14px rgba(10,132,255,0.75));
+      }
+      .shimmer-sweep {
+        --shimmer-x: -120%;
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+      }
+      .shimmer-sweep::after {
+        content: "";
+        position: absolute;
+        inset: -8% -18%;
+        background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,0) 34%, rgba(255,255,255,0.82) 48%, rgba(10,132,255,0.45) 54%, rgba(255,255,255,0) 66%, transparent 100%);
+        transform: translateX(var(--shimmer-x)) skewX(-16deg);
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
     </style>
   </head>
   <body>
     <div id="root"
          data-composition-id="main"
-         data-start="0" data-duration="6"
+         data-start="0" data-duration="12"
          data-width="1920" data-height="1080">
 
       <div id="s-1" class="scene clip center"
@@ -35,6 +151,38 @@
         <div class="eyebrow">Template</div>
         <div class="hero-title">주제 이름</div>
         <div class="hero-sub">여기에 서브텍스트를 적습니다</div>
+      </div>
+
+      <div id="s-2" class="scene clip"
+           data-start="6" data-duration="6" data-track-index="0">
+        <div class="eyebrow">Evolution Flow</div>
+        <div class="scene-title">오버뷰 리뷰가 어떻게 바뀌었나</div>
+        <div class="flow">
+          <div class="flow-col" id="s-2-before">
+            <div class="flow-label">기존</div>
+            <div class="flow-heading">한 장씩 확인</div>
+            <ul class="flow-list">
+              <li>슬라이드 상태를 순서대로 넘겨 봐야 한다</li>
+              <li>수정할 텍스트 위치를 다시 설명해야 한다</li>
+            </ul>
+          </div>
+          <div class="flow-arrow" id="s-2-arrow">
+            <svg class="flow-link" id="s-2-link" viewBox="0 0 120 260" aria-hidden="true">
+              <path id="s-2-link-path" pathLength="1" d="M16 130 C40 130 54 130 78 130" />
+              <path d="M78 130 L56 110 M78 130 L56 150" />
+              <circle id="s-2-link-node-a" cx="16" cy="130" r="9" />
+              <circle id="s-2-link-node-b" cx="78" cy="130" r="9" />
+            </svg>
+          </div>
+          <div class="flow-col after" id="s-2-after">
+            <div class="flow-label">개선</div>
+            <div class="flow-heading"><span class="shimmer-sweep">흐름 중심 리뷰</span></div>
+            <ul class="flow-list">
+              <li>좌우 상태 차이가 한 화면에서 읽힌다</li>
+              <li>Aim과 Edit로 바로 지목하고 고친다</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -46,6 +194,18 @@
       tl.from("#s-1 .eyebrow",    { y: -20, opacity: 0, duration: 0.7, ease: "power3.out" }, 0.3);
       tl.from("#s-1 .hero-title", { y: 80,  opacity: 0, duration: 1.1, ease: "expo.out"   }, 0.6);
       tl.from("#s-1 .hero-sub",   {         opacity: 0, duration: 0.8, ease: "power2.out" }, 1.4);
+      tl.to("#s-1", { scale: 1.16, filter: "blur(16px)", opacity: 0, duration: 0.85, ease: "power3.inOut" }, 5.15);
+      tl.set("#s-1", { opacity: 0 }, 6.0);
+      tl.from("#s-2", { scale: 1.08, filter: "blur(14px)", opacity: 0, duration: 0.85, ease: "power3.inOut" }, 5.15);
+
+      tl.from("#s-2 .eyebrow",     { y: -15, opacity: 0, duration: 0.5, ease: "power3.out" }, 6.2);
+      tl.from("#s-2 .scene-title", { y: 40,  opacity: 0, duration: 0.7, ease: "expo.out"   }, 6.4);
+      tl.from("#s-2-before",       { x: -48, rotationY: -18, z: -80, opacity: 0, duration: 0.75, ease: "power3.out" }, 6.9);
+      tl.from("#s-2-link",         { scale: 0.55, opacity: 0, duration: 0.45, ease: "back.out(1.7)" }, 7.25);
+      tl.from("#s-2-link-path",    { strokeDasharray: 1, strokeDashoffset: 1, duration: 0.6, ease: "power2.out" }, 7.3);
+      tl.from("#s-2-link-node-a, #s-2-link-node-b", { scale: 0, transformOrigin: "center", duration: 0.35, stagger: 0.12, ease: "back.out(2)" }, 7.35);
+      tl.from("#s-2-after",        { x: 48, rotationY: 18, z: -80, opacity: 0, duration: 0.75, ease: "power3.out" }, 7.48);
+      tl.fromTo(".shimmer-sweep",  { "--shimmer-x": "-120%" }, { "--shimmer-x": "120%", duration: 1.0, ease: "power2.out" }, 8.3);
 
       window.__timelines["main"] = tl;
     </script>
