@@ -46,7 +46,9 @@ https://hyperframes.heygen.com/llms.txt
 
 ```
 lab-hyperframes/
-├── .codex/skills/               로컬 스킬 원본 (타 에이전트 skills는 심링크)
+├── .claude/skills                Claude Code용 스킬 심링크
+├── .codex/skills/                Codex용 로컬 스킬 원본
+├── .cursor/skills                Cursor용 스킬 심링크
 ├── PROJECT.md                    사용자 가이드 (전체 흐름 설명)
 ├── hyperframes.json, meta.json   워크스페이스 마커
 ├── topics/

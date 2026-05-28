@@ -6,7 +6,9 @@ HyperFrames 기반 슬라이드·영상 실험장. 주제별로 독립된 서브
 
 ```
 lab-hyperframes/
-├── .codex/skills/               로컬 스킬 원본 (타 에이전트 skills는 심링크)
+├── .claude/skills                Claude Code용 스킬 심링크
+├── .codex/skills/                Codex용 로컬 스킬 원본
+├── .cursor/skills                Cursor용 스킬 심링크
 ├── AGENTS.md, CLAUDE.md          에이전트 가이드
 ├── PROJECT.md                    이 문서
 ├── hyperframes.json, meta.json   워크스페이스 마커

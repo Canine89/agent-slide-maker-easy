@@ -14,6 +14,22 @@ renders/
 # Archive
 _archive/
 
+# Unsupported agent skill wrappers
+.agents/
+.commandcode/
+.factory/
+.goose/
+.kilocode/
+.kiro/
+.neovate/
+.openhands/
+.pi/
+.qoder/
+.roo/
+.trae/
+.windsurf/
+.zencoder/
+
 # Topics — only keep hangul-600 and _template as samples
 topics/*
 !topics/hangul-600/
