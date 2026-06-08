@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>에듀테크 기반 수행평가·지필평가 준비 — 발표 덱</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+  /* ============================================================
+     Notion-inspired design tokens (from design.md)
+     ============================================================ */
+  :root{
+    --primary:#0075de; --primary-active:#005bab; --secondary:#213183;
+    --on-primary:#ffffff; --canvas:#ffffff; --canvas-soft:#f6f5f4; --surface:#ffffff;
+    --ink:#0a0a0a; --ink-secondary:#31302e; --ink-muted:#615d59; --ink-faint:#a39e98;
+    --hairline:#e6e6e6;
+    --sky:#62aef0; --purple:#d6b6f6; --purple-deep:#391c57; --pink:#ff64c8;
+    --orange:#dd5b00; --orange-deep:#793400; --teal:#2a9d99; --green:#1aae39; --brown:#523410;
+    --r-xs:4px; --r-sm:5px; --r-md:8px; --r-lg:12px; --r-xl:16px; --r-full:9999px;
+    --sh1: 0 .175px 1.04px rgba(0,0,0,.01), 0 .8px 2.9px rgba(0,0,0,.02),
+           0 2px 7.8px rgba(0,0,0,.027), 0 4px 18px rgba(0,0,0,.04);
+    --sh2: 0 .5px 2px rgba(0,0,0,.02), 0 3px 8px rgba(0,0,0,.03), 0 23px 52px rgba(0,0,0,.05);
+    --font:"Pretendard","Inter",-apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ background:#e9e8e6; font-family:var(--font); color:var(--ink);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+
+  /* ---------- Slide page (16:9, 1280x720) ---------- */
+  .page{
+    position:relative; width:1280px; height:720px; margin:28px auto;
+    background:var(--canvas-soft); overflow:hidden;
+    box-shadow:var(--sh2); border-radius:2px;
+    padding:64px 72px;
+    display:flex; flex-direction:column;
+  }
+  .page.dark{ background:var(--secondary); color:#fff; }
+
+  /* ---------- Typography roles ---------- */
+  .eyebrow{ display:inline-flex; align-items:center; gap:7px;
+    background:var(--surface); color:var(--primary);
+    font-size:13px; font-weight:600; letter-spacing:.12px;
+    border:1px solid var(--hairline); border-radius:var(--r-full);
+    padding:5px 13px; }
+  .eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--primary); }
+
+  .stitle{ font-size:40px; font-weight:700; line-height:1.1; letter-spacing:-1px;
+    color:var(--ink); }
+  .stitle.big{ font-size:50px; letter-spacing:-1.6px; line-height:1.05; }
+  .ssub{ font-size:19px; font-weight:400; line-height:1.5; color:var(--ink-muted); }
+
+  .shead{ display:flex; flex-direction:column; gap:14px; margin-bottom:30px; }
+  .shead .eyebrow{ align-self:flex-start; }
+
+  .body-fill{ flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; }
+  /* keep cards at content height (don't stretch the grid to fill the slide) */
+  .body-fill > .grid2, .body-fill > .grid3, .body-fill > .grid4{ flex:0 0 auto !important; }
+
+  /* ---------- Reusable components ---------- */
+  .card{ background:var(--surface); border:1px solid var(--hairline);
+    border-radius:var(--r-lg); padding:24px; }
+  .card.soft{ background:var(--canvas-soft); }
+  .card.elev{ box-shadow:var(--sh1); }
+  .card .stripe{ height:6px; border-radius:var(--r-full); width:40px; margin-bottom:16px; }
+
+  .ctitle{ font-size:22px; font-weight:700; letter-spacing:-.25px; line-height:1.27; }
+  .ctitle.sm{ font-size:19px; }
+  .ctext{ font-size:16px; font-weight:400; line-height:1.5; color:var(--ink-secondary); }
+  .ctext.sm{ font-size:15px; line-height:1.45; }
+  .muted{ color:var(--ink-muted); }
+  .faint{ color:var(--ink-faint); }
+  .accent{ color:var(--primary); }
+  .bold{ font-weight:700; color:var(--ink); }
+
+  .kicker{ font-size:13px; font-weight:600; letter-spacing:.4px; text-transform:uppercase;
+    color:var(--ink-faint); }
+
+  /* list with custom markers */
+  .li{ display:flex; gap:11px; align-items:flex-start; font-size:16px; line-height:1.5;
+    color:var(--ink-secondary); }
+  .li .mk{ flex:none; margin-top:2px; font-weight:700; }
+  .li.sm{ font-size:15px; line-height:1.42; }
+
+  .tick{ color:var(--green); font-weight:700; }
+  .cross{ color:#c23b3b; font-weight:700; }
+
+  .pill{ display:inline-flex; align-items:center; gap:6px; background:var(--surface);
+    border:1px solid var(--hairline); border-radius:var(--r-full);
+    font-size:13px; font-weight:600; color:var(--ink-secondary); padding:4px 11px; }
+  .pill.blue{ color:var(--primary); border-color:#cfe6fb; background:#f3f9ff; }
+
+  .arrow{ color:var(--ink-faint); font-weight:700; }
+
+  /* footer page number + brand */
+  .pageno{ position:absolute; right:30px; bottom:24px; font-size:13px; color:var(--ink-faint);
+    letter-spacing:.4px; font-variant-numeric:tabular-nums; }
+  .brandmark{ position:absolute; left:34px; bottom:24px; font-size:12px; color:var(--ink-faint);
+    letter-spacing:.3px; }
+  .page.dark .pageno, .page.dark .brandmark{ color:rgba(255,255,255,.5); }
+
+  /* sticker dots constellation */
+  .sticker{ position:absolute; border-radius:50%; opacity:.95; }
+
+  /* grids */
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .grid4{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+
+  /* flow band */
+  .flow{ display:flex; align-items:center; gap:14px; }
+  .flow .step{ flex:1; text-align:center; background:var(--surface);
+    border:1px solid var(--hairline); border-radius:var(--r-md); padding:14px 10px;
+    font-size:17px; font-weight:700; letter-spacing:-.3px; }
+  .flow .sep{ color:var(--ink-faint); font-size:20px; font-weight:700; }
+
+  .concl{ background:var(--secondary); color:#fff; border-radius:var(--r-lg);
+    padding:18px 26px; font-size:20px; font-weight:700; letter-spacing:-.4px;
+    display:flex; align-items:center; gap:12px; }
+  .concl.blue{ background:var(--primary); }
+
+  /* mock app chrome */
+  .mock{ background:#fff; border:1px solid var(--hairline); border-radius:var(--r-lg);
+    overflow:hidden; box-shadow:var(--sh1); }
+  .mock .bar{ display:flex; gap:7px; align-items:center; padding:10px 14px;
+    border-bottom:1px solid var(--hairline); background:var(--canvas-soft); }
+  .mock .bar i{ width:11px; height:11px; border-radius:50%; display:inline-block; }
+  .tabrow{ display:flex; gap:8px; }
+  .tab{ font-size:14px; font-weight:600; padding:6px 16px; border-radius:var(--r-md);
+    color:var(--ink-muted); border:1px solid transparent; }
+  .tab.on{ background:#fff; color:var(--primary); border-color:var(--hairline); box-shadow:var(--sh1); }
+
+  /* checklist */
+  .check{ display:flex; gap:14px; align-items:flex-start; background:var(--surface);
+    border:1px solid var(--hairline); border-radius:var(--r-lg); padding:16px 20px; }
+  .check .box{ flex:none; width:26px; height:26px; border-radius:var(--r-sm);
+    border:2px solid var(--primary); color:var(--primary); display:flex;
+    align-items:center; justify-content:center; font-weight:800; font-size:15px; margin-top:1px; }
+
+  /* mini data table */
+  table.mini{ width:100%; border-collapse:collapse; font-size:14px; }
+  table.mini th{ background:var(--canvas-soft); font-size:12px; font-weight:700;
+    letter-spacing:.3px; color:var(--ink-muted); text-transform:uppercase;
+    text-align:left; padding:9px 12px; border-bottom:1px solid var(--hairline); }
+  table.mini td{ padding:9px 12px; border-bottom:1px solid var(--hairline);
+    color:var(--ink-secondary); }
+  table.mini tr:last-child td{ border-bottom:none; }
+  code.k{ background:var(--canvas-soft); border:1px solid var(--hairline);
+    border-radius:var(--r-xs); padding:1px 6px; font-size:13px;
+    font-family:"SFMono-Regular",Consolas,monospace; color:var(--ink-secondary); }
+
+  /* ---------- print ---------- */
+  @page{ size:1280px 720px; margin:0; }
+  @media print{
+    html,body{ background:#fff; }
+    .page{ margin:0; box-shadow:none; border-radius:0; page-break-after:always; }
+    .page:last-child{ page-break-after:auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== 1 · 표지 ===================== -->
+<section class="page dark">
+  <span class="sticker" style="width:14px;height:14px;background:var(--pink);top:90px;left:140px;"></span>
+  <span class="sticker" style="width:10px;height:10px;background:var(--sky);top:150px;left:1080px;"></span>
+  <span class="sticker" style="width:18px;height:18px;background:var(--purple);top:560px;left:170px;"></span>
+  <span class="sticker" style="width:12px;height:12px;background:var(--orange);top:600px;left:1040px;"></span>
+  <span class="sticker" style="width:8px;height:8px;background:var(--teal);top:120px;left:760px;"></span>
+  <span class="sticker" style="width:9px;height:9px;background:var(--green);top:520px;left:980px;"></span>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:22px;">
+    <span style="font-size:16px;font-weight:600;letter-spacing:3px;color:var(--sky);">저경력 교사를 위한</span>
+    <h1 style="font-size:62px;font-weight:700;letter-spacing:-2.1px;line-height:1.08;max-width:980px;">
+      에듀테크 기반<br/>수행평가·지필평가 준비</h1>
+    <p style="font-size:22px;font-weight:400;color:rgba(255,255,255,.82);max-width:820px;line-height:1.5;">
+      하나의 도구, 하나의 작업틀로 — 준비·실시·결과 정리를 일관되게</p>
+    <span style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.22);border-radius:var(--r-full);padding:8px 18px;
+      font-size:15px;font-weight:600;color:#fff;">
+      평가 작업틀<span style="color:var(--sky);">(Harness)</span> 설계 × Claude Code(앱)</span>
+    <p style="margin-top:14px;font-size:21px;font-weight:600;color:#fff;font-style:italic;">
+      “평가 준비, 매 학기 ‘맨땅’에서 다시 시작하시나요?”</p>
+  </div>
+  <div style="text-align:center;font-size:15px;color:rgba(255,255,255,.6);letter-spacing:.3px;">
+    강사명 · 소속 · 2026. ○○. ○○.</div>
+</section>
+
+<!-- ===================== 2 · 오늘의 약속과 지도 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>오늘의 약속</span>
+    <h1 class="stitle">코딩 강의가 아닙니다 — 관점 3가지를 가져갑니다</h1>
+  </div>
+  <div class="body-fill">
+    <div class="grid2" style="flex:1;">
+      <div class="card" style="border-color:#ecdede;background:#fcf8f8;">
+        <div class="kicker" style="color:#c23b3b;">다루지 않을 것</div>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:18px;">
+          <div class="li"><span class="mk cross">✕</span><span>화려한 프롬프트 기술</span></div>
+          <div class="li"><span class="mk cross">✕</span><span>코딩 · 터미널</span></div>
+        </div>
+      </div>
+      <div class="card elev">
+        <div class="kicker" style="color:var(--green);">다룰 것</div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:18px;">
+          <div class="li"><span class="mk tick">○</span><span>평가를 <span class="bold">‘생애주기’</span>로 보기</span></div>
+          <div class="li"><span class="mk tick">○</span><span><span class="bold">‘평가 작업틀’</span> 개념</span></div>
+          <div class="li"><span class="mk tick">○</span><span>내 파일을 직접 읽고 쓰는 <span class="bold">시연</span></span></div>
+        </div>
+      </div>
+    </div>
+    <p class="ctext" style="margin:20px 0 18px;">
+      진행 방식 — <span class="bold">인사이트 강연</span>. 직접 따라 만들기는 워크숍 자료로 별도 제공합니다.</p>
+    <div class="flow">
+      <div class="step">준비</div><span class="sep">→</span>
+      <div class="step">실시</div><span class="sep">→</span>
+      <div class="step">결과 정리</div>
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">02 / 17</span>
+</section>
+
+<!-- ===================== 3 · 평가의 3중고 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>문제 정의</span>
+    <h1 class="stitle">저경력 교사의 평가, 무엇이 가장 힘든가</h1>
+  </div>
+  <div class="body-fill">
+    <div class="grid3" style="flex:1;">
+      <div class="card elev">
+        <div class="stripe" style="background:var(--orange);"></div>
+        <div class="ctitle">일관성</div>
+        <p class="ctext sm" style="margin-top:10px;">반·단원·해마다 채점 잣대가 흔들린다</p>
+      </div>
+      <div class="card elev">
+        <div class="stripe" style="background:var(--purple);"></div>
+        <div class="ctitle">시간</div>
+        <p class="ctext sm" style="margin-top:10px;">문항·루브릭·안내문·과세특… 참고할 ‘내 작년 자료’도 빈약</p>
+      </div>
+      <div class="card elev">
+        <div class="stripe" style="background:var(--teal);"></div>
+        <div class="ctitle">책무성</div>
+        <p class="ctext sm" style="margin-top:10px;">계획서와 일치하나? 같은 기준 적용했나? 이의신청에 설명 가능한가?</p>
+      </div>
+    </div>
+    <div class="concl" style="margin-top:24px;justify-content:center;">
+      <span style="opacity:.7;">▲</span> 따로 푸는 문제가 아니다 — 하나의 틀로 함께 풀린다
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">03 / 17</span>
+</section>
+
+<!-- ===================== 4 · 함정 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>함정</span>
+    <h1 class="stitle">AI를 ‘그때그때’ 쓰면, 일관성은 더 나빠진다</h1>
+  </div>
+  <div class="body-fill">
+    <div class="card soft" style="display:flex;align-items:center;gap:28px;padding:20px 26px;">
+      <div style="flex:1;">
+        <div class="kicker">Before</div>
+        <p class="ctext" style="margin-top:8px;font-size:17px;">
+          채팅창에 매번 새 질문 <span class="arrow">→</span> 매번 다른 결과</p>
+      </div>
+      <!-- jagged bars -->
+      <div style="display:flex;align-items:flex-end;gap:8px;height:78px;">
+        <div style="width:18px;height:40px;background:var(--sky);border-radius:3px 3px 0 0;"></div>
+        <div style="width:18px;height:72px;background:var(--purple);border-radius:3px 3px 0 0;"></div>
+        <div style="width:18px;height:28px;background:var(--pink);border-radius:3px 3px 0 0;"></div>
+        <div style="width:18px;height:60px;background:var(--orange);border-radius:3px 3px 0 0;"></div>
+        <div style="width:18px;height:18px;background:var(--teal);border-radius:3px 3px 0 0;"></div>
+      </div>
+    </div>
+    <div class="grid4" style="margin-top:22px;flex:1;">
+      <div class="card"><div class="ctitle sm">① 재현 불가</div><p class="ctext sm muted" style="margin-top:8px;">같은 결과를 다시 못 만든다</p></div>
+      <div class="card"><div class="ctitle sm">② 품질 들쭉날쭉</div><p class="ctext sm muted" style="margin-top:8px;">기준 없이 매번 다른 수준</p></div>
+      <div class="card"><div class="ctitle sm">③ 근거 추적 안 됨</div><p class="ctext sm muted" style="margin-top:8px;">왜 그렇게 됐는지 못 남긴다</p></div>
+      <div class="card"><div class="ctitle sm">④ 개인정보 무방비</div><p class="ctext sm muted" style="margin-top:8px;">실명·학번이 그대로 노출</p></div>
+    </div>
+    <p class="ctext" style="margin-top:20px;text-align:center;font-size:18px;">
+      <span class="bold">도구는 늘었는데, 일관성은 더 나빠진다.</span></p>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">04 / 17</span>
+</section>
+
+<!-- ===================== 5 · 하네스란? ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>개념</span>
+    <h1 class="stitle">잠깐 — ‘하네스(Harness)’가 뭐죠?</h1>
+  </div>
+  <div class="body-fill">
+    <div class="grid2" style="flex:1;">
+      <div class="card elev">
+        <div class="kicker">원래 뜻</div>
+        <div style="display:flex;gap:18px;margin:18px 0;font-size:40px;">
+          <span title="말의 마구">🐴</span><span title="등산 안전벨트">🧗</span><span title="강아지 가슴줄">🐕</span>
+        </div>
+        <p class="ctext">말의 마구 · 등산 안전벨트 · 강아지 가슴줄</p>
+        <p class="ctext" style="margin-top:10px;">
+          → 다루기 힘든 큰 힘을 <span class="bold">안전하게·일정한 방향으로</span> 쓰도록 ‘묶어주는’ 장치</p>
+      </div>
+      <div class="card elev">
+        <div class="kicker" style="color:var(--primary);">개발자에게는</div>
+        <div style="display:flex;align-items:center;gap:12px;margin:18px 0;">
+          <span style="background:var(--primary);color:#fff;border-radius:var(--r-md);
+            padding:10px 16px;font-weight:700;font-size:15px;">▶ 실행</span>
+          <span class="arrow" style="font-size:22px;">→</span>
+          <span class="pill blue">같은 검사 · 같은 방식</span>
+        </div>
+        <p class="ctext">코드를 매번 같은 조건에서 자동·반복 점검하려고 미리 만든 ‘시험 장치(test harness)’</p>
+        <p class="ctext" style="margin-top:10px;">→ 한 번 만들면, 누를 때마다 <span class="bold">같은 검사가 같은 방식으로</span> 굴러간다</p>
+      </div>
+    </div>
+    <div class="concl blue" style="margin-top:22px;justify-content:center;">
+      공통점 — 한 번 잘 만들면, 반복해도 흔들리지 않는다
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">05 / 17</span>
+</section>
+
+<!-- ===================== 6 · 평가 작업틀 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>해법</span>
+    <h1 class="stitle">그래서 우리가 만들 것 — ‘평가 작업틀’</h1>
+  </div>
+  <div class="body-fill">
+    <p class="ssub" style="margin-bottom:22px;">
+      평가를 즉흥이 아니라, <span class="bold" style="color:var(--ink);">한 번 만든 틀에 ‘걸어서’</span> 일정하게·반복해서·안전하게 굴린다.</p>
+    <div class="grid4" style="flex:1;">
+      <div class="card elev"><div class="stripe" style="background:var(--purple);"></div>
+        <div class="ctitle sm">원칙</div>
+        <p class="ctext sm" style="margin-top:6px;"><code class="k">CLAUDE.md</code></p>
+        <p class="ctext sm muted" style="margin-top:8px;">우리 반 평가의 규칙·금지사항</p></div>
+      <div class="card elev"><div class="stripe" style="background:var(--sky);"></div>
+        <div class="ctitle sm">데이터</div>
+        <p class="ctext sm" style="margin-top:6px;">폴더</p>
+        <p class="ctext sm muted" style="margin-top:8px;">성취기준·기준안·루브릭·관찰기록</p></div>
+      <div class="card elev"><div class="stripe" style="background:var(--orange);"></div>
+        <div class="ctitle sm">반복 절차</div>
+        <p class="ctext sm" style="margin-top:6px;">정해진 순서</p>
+        <p class="ctext sm muted" style="margin-top:8px;">자주 하는 작업을 같은 흐름으로</p></div>
+      <div class="card elev"><div class="stripe" style="background:var(--teal);"></div>
+        <div class="ctitle sm">연결</div>
+        <p class="ctext sm" style="margin-top:6px;">Notion 등</p>
+        <p class="ctext sm muted" style="margin-top:8px;">평소 쓰는 도구와 이어붙이기</p></div>
+    </div>
+    <div class="card soft" style="margin-top:22px;text-align:center;padding:16px;">
+      <span class="ctext" style="font-size:18px;font-style:italic;color:var(--ink);">
+        “정답은 더 좋은 질문이 아니라, <span class="bold">다시 쓸 수 있는 틀</span>”</span>
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">06 / 17</span>
+</section>
+
+<!-- ===================== 7 · Code 탭 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>도구</span>
+    <h1 class="stitle">도구는 하나면 충분 — Claude 앱의 ‘Code’ 탭</h1>
+  </div>
+  <div class="body-fill">
+    <div class="grid2" style="flex:1;">
+      <div class="card">
+        <div class="tabrow" style="margin-bottom:14px;"><span class="tab">Chat</span></div>
+        <div class="ctitle sm">대화만</div>
+        <p class="ctext sm" style="margin-top:10px;"><span class="cross">✕</span> 내 컴퓨터 파일 접근 불가</p>
+      </div>
+      <div class="card elev" style="border-color:#cfe6fb;">
+        <div class="tabrow" style="margin-bottom:14px;"><span class="tab on">Code</span></div>
+        <div class="ctitle sm" style="color:var(--primary);">내 컴퓨터 파일을 직접 읽고 쓴다</div>
+        <p class="ctext sm" style="margin-top:10px;"><span class="tick">●</span> 터미널·별도 설치 불필요</p>
+      </div>
+    </div>
+    <div class="card soft" style="margin-top:18px;display:flex;align-items:center;gap:14px;">
+      <span class="pill blue">안전장치</span>
+      <span class="ctext">바꾸기 전 <span class="bold">‘변경 미리보기(diff)’</span> → 내가 <span class="bold">승인해야</span> 저장</span>
+    </div>
+    <div class="concl" style="margin-top:14px;justify-content:center;font-size:18px;">
+      <span style="opacity:.7;">⌥</span> Code 탭은 GitHub와도 연결 — 공유 작업틀을 ‘주소’로 가져온다
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">07 / 17</span>
+</section>
+
+<!-- ===================== 8 · 평가 순환 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>지도</span>
+    <h1 class="stitle">평가를 하나의 ‘순환’으로 보기</h1>
+  </div>
+  <div class="body-fill" style="justify-content:center;">
+    <div class="flow" style="gap:10px;">
+      <div style="flex:1;text-align:center;">
+        <div class="card elev" style="padding:20px 10px;"><div class="ctitle sm">준비</div></div>
+        <p class="ctext sm accent" style="margin-top:10px;font-weight:600;">설계 일관성</p>
+      </div>
+      <span class="sep" style="font-size:24px;color:var(--ink-faint);">→</span>
+      <div style="flex:1;text-align:center;">
+        <div class="card elev" style="padding:20px 10px;"><div class="ctitle sm">실시</div></div>
+        <p class="ctext sm accent" style="margin-top:10px;font-weight:600;">산출물·기록 통일</p>
+      </div>
+      <span class="sep" style="font-size:24px;color:var(--ink-faint);">→</span>
+      <div style="flex:1;text-align:center;">
+        <div class="card elev" style="padding:20px 10px;"><div class="ctitle sm">결과 정리</div></div>
+        <p class="ctext sm accent" style="margin-top:10px;font-weight:600;">근거 연결</p>
+      </div>
+      <span class="sep" style="font-size:24px;color:var(--ink-faint);">↻</span>
+      <div style="flex:1;text-align:center;">
+        <div class="card soft" style="padding:20px 10px;"><div class="ctitle sm muted">회고</div></div>
+        <p class="ctext sm faint" style="margin-top:10px;">다시 준비로</p>
+      </div>
+    </div>
+    <div class="card soft" style="margin-top:34px;text-align:center;padding:18px;">
+      <span class="ctext" style="font-size:18px;">같은 폴더, 같은 원칙 위에서 이어지는 <span class="bold">한 흐름</span></span>
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">08 / 17</span>
+</section>
+
+<!-- ===================== 9 · 공식 문서 3계층 ===================== -->
+<section class="page">
+  <div class="shead" style="margin-bottom:20px;">
+    <span class="eyebrow"><span class="dot"></span>준비 ①</span>
+    <h1 class="stitle">무엇을 보고 설계하는가 — 확인 필수 공식 문서 3계층</h1>
+  </div>
+  <div class="body-fill">
+    <div style="display:flex;flex-direction:column;gap:12px;flex:1;">
+      <!-- tier 1 -->
+      <div class="card" style="padding:14px 18px;border-left:5px solid var(--purple-deep);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span class="ctitle sm">① 국가·교육부</span><span class="pill">기본 기준</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:14px;">
+          <span class="li sm" style="flex:1;min-width:200px;">교육과정 각론(2015/2022) <span class="arrow">→</span>&nbsp;<span class="pill blue">성취기준</span></span>
+          <span class="li sm" style="flex:1;min-width:220px;">교과별 평가기준안 <span class="arrow">→</span>&nbsp;<span class="pill blue">평가기준·성취수준</span></span>
+          <span class="li sm" style="flex:1;min-width:230px;">학교생활기록 작성·관리지침(훈령) <span class="arrow">→</span>&nbsp;<span class="pill blue">실시·채점·세특 원칙</span></span>
+        </div>
+      </div>
+      <!-- tier 2 -->
+      <div class="card" style="padding:14px 18px;border-left:5px solid var(--orange);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span class="ctitle sm">② 교육청</span><span class="pill">지역 세부 규칙</span>
+          <span class="pill" style="color:var(--orange);border-color:#f3d9c4;background:#fef6ef;">경남 — 매년 갱신, 강의 전 확인</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:14px;">
+          <span class="li sm" style="flex:1;min-width:300px;">중·고 학업성적관리 시행지침 <span class="arrow">→</span>&nbsp;<span class="pill blue">수행평가 의무 반영 비율 · 서·논술형 최소 비율</span></span>
+        </div>
+      </div>
+      <!-- tier 3 -->
+      <div class="card" style="padding:14px 18px;border-left:5px solid var(--teal);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span class="ctitle sm">③ 학교·교과</span><span class="pill">실제 적용 기준</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:14px;">
+          <span class="li sm" style="flex:1;min-width:200px;">학업성적관리규정 <span class="arrow">→</span>&nbsp;<span class="pill blue">결시·미제출·동점 처리</span></span>
+          <span class="li sm" style="flex:1;min-width:180px;">교과협의회록 <span class="arrow">→</span>&nbsp;<span class="pill blue">영역·횟수·루브릭 합의</span></span>
+          <span class="li sm" style="flex:1;min-width:180px;">전년도 평가계획서 <span class="arrow">→</span>&nbsp;<span class="pill blue">성취기준 매칭 사례</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="concl" style="margin-top:16px;justify-content:center;font-size:17px;padding:14px 26px;">
+      매번 찾지 말자 — 공유 작업틀 저장소에 미리 모아둔다 (교과협의회 공동 관리)
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">09 / 17</span>
+</section>
+
+<!-- ===================== 10 · 가져오기 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>준비 ②</span>
+    <h1 class="stitle">맨땅에서 만들지 않는다 — 주소 하나로 통째로 가져오기</h1>
+  </div>
+  <div class="body-fill">
+    <div style="display:grid;grid-template-columns:0.85fr 1.15fr;gap:20px;align-items:start;">
+      <div class="card">
+        <div class="kicker">저장소에 미리 담겨 옴</div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px;">
+          <span class="li sm"><span class="mk">📁</span><code class="k">근거문서/</code></span>
+          <span class="li sm"><span class="mk">📄</span><code class="k">CLAUDE.md</code></span>
+          <span class="li sm"><span class="mk">📁</span><code class="k">루브릭/</code></span>
+          <span class="li sm"><span class="mk">📁</span><code class="k">학생명렬(번호)/</code></span>
+          <span class="li sm"><span class="mk">📁</span><code class="k">수행기록/</code> · <code class="k">산출물/</code></span>
+        </div>
+      </div>
+      <div class="card elev">
+        <div class="kicker" style="color:var(--primary);">3스텝</div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:14px;">
+          <div class="li"><span class="mk accent">1</span><span>Code 탭(Local)에서 작업 폴더 선택</span></div>
+          <div class="li"><span class="mk accent">2</span><span>“이 저장소를 가져와줘: <code class="k">github.com/우리교과/평가작업틀</code>”라고 <span class="bold">말로 지시</span> <span class="faint">(공개 저장소는 로그인 불필요)</span></span></div>
+          <div class="li"><span class="mk accent">3</span><span>우리 반에 맞게 <span class="bold">한 곳만 수정</span> — CLAUDE.md의 학교·학년·반영 비율</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="concl blue" style="margin-top:18px;justify-content:center;font-size:18px;padding:15px;">
+      세팅 시간 0분에 가깝게 — 모두가 같은 검증된 기준에서 출발
+    </div>
+    <p class="ctext sm faint" style="margin-top:12px;text-align:center;">
+      Windows는 Git 1회 설치(앱이 안내) · 공개 저장소엔 템플릿·공개문서만, 실데이터는 넣지 않음</p>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">10 / 17</span>
+</section>
+
+<!-- ===================== 11 · 텍스트 vs 바이너리 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>원리</span>
+    <h1 class="stitle">작업은 텍스트로, 최종본만 바이너리로</h1>
+  </div>
+  <div class="body-fill">
+    <div style="display:flex;align-items:stretch;gap:16px;">
+      <div class="card elev" style="flex:1;">
+        <div class="kicker" style="color:var(--green);">작업 = 텍스트</div>
+        <p class="ctext sm faint" style="margin:4px 0 12px;"><code class="k">.md</code> <code class="k">.txt</code> <code class="k">.csv</code></p>
+        <p class="ctext sm">성취기준 · 평가기준 · 루브릭 · 관찰기록 · CLAUDE.md</p>
+      </div>
+      <div style="display:flex;align-items:center;color:var(--ink-faint);font-size:26px;font-weight:700;">→</div>
+      <div class="card" style="flex:1;">
+        <div class="kicker">배포 = 바이너리</div>
+        <p class="ctext sm faint" style="margin:4px 0 12px;"><code class="k">.hwp</code> <code class="k">.pdf</code> <code class="k">.xlsx</code></p>
+        <p class="ctext sm">가정통신문 · 평가지 · 제출용 양식</p>
+      </div>
+    </div>
+    <p class="ctext" style="text-align:center;margin:16px 0;">텍스트로 작업 <span class="arrow">→</span> 마지막에 한글/PDF로 변환</p>
+    <div class="grid4" style="flex:1;">
+      <div class="card soft"><div class="ctitle sm">① 직접 읽고 쓴다</div><p class="ctext sm muted" style="margin-top:8px;">바이너리는 변환·서식 깨짐 위험</p></div>
+      <div class="card soft"><div class="ctitle sm">② diff 미리보기</div><p class="ctext sm muted" style="margin-top:8px;">확인 후 승인 — 안전장치 작동</p></div>
+      <div class="card soft"><div class="ctitle sm">③ 버전·이력</div><p class="ctext sm muted" style="margin-top:8px;">근거 보존 · 책무성과 직결</p></div>
+      <div class="card soft"><div class="ctitle sm">④ 안 깨짐</div><p class="ctext sm muted" style="margin-top:8px;">iMac·윈도우·맥북 호환</p></div>
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">11 / 17</span>
+</section>
+
+<!-- ===================== 12 · 실시 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>실시</span>
+    <h1 class="stitle">평가를 ‘치르는’ 동안 — 흔들리기 쉬운 두 가지</h1>
+  </div>
+  <div class="body-fill">
+    <div class="grid2" style="flex:1;">
+      <div class="card elev">
+        <div class="stripe" style="background:var(--orange);"></div>
+        <div class="ctitle sm">산출물 통일</div>
+        <p class="ctext sm" style="margin-top:12px;">평가지·안내문 양식·말투 통일</p>
+        <p class="ctext sm faint" style="margin-top:8px;">← CLAUDE.md 출력 양식 규칙</p>
+      </div>
+      <div class="card elev">
+        <div class="stripe" style="background:var(--teal);"></div>
+        <div class="ctitle sm">구조화된 관찰 기록</div>
+        <p class="ctext sm" style="margin:12px 0;">즉석 메모를 표로 — 번호·날짜·관찰한 사실·관련 역량</p>
+        <table class="mini">
+          <thead><tr><th>번호</th><th>날짜</th><th>관찰한 사실</th><th>관련 역량</th></tr></thead>
+          <tbody><tr><td>12</td><td>6.3</td><td>적정 종말점 근거를 모둠에 설명</td><td>데이터해석·의사소통</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="concl" style="margin-top:20px;justify-content:center;font-size:18px;">
+      학기말 기억으로 복원하지 말고, 그 순간 ‘쓸 수 있는 형태’로 남긴다
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">12 / 17</span>
+</section>
+
+<!-- ===================== 13 · 결과 ① ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>결과 ①</span>
+    <h1 class="stitle">채점과 과세특을 ‘증거’에 연결한다</h1>
+  </div>
+  <div class="body-fill">
+    <div class="flow" style="gap:12px;margin-bottom:20px;">
+      <div class="step" style="font-weight:600;">관찰 기록</div><span class="sep">→</span>
+      <div class="step" style="font-weight:600;">루브릭 채점</div><span class="sep">→</span>
+      <div class="step" style="font-weight:600;">점수 / 과세특 초안</div>
+    </div>
+    <div class="grid2" style="flex:1;">
+      <div class="card elev">
+        <div class="kicker">변환 예시 — 사실 → 역량</div>
+        <p class="ctext sm" style="margin-top:14px;">“종말점 근거를 모둠에 설명함”</p>
+        <p class="arrow" style="margin:8px 0;font-size:20px;">↓</p>
+        <p class="ctext" style="color:var(--primary);font-weight:600;">“실험 데이터를 해석하고 동료와 공유하는 의사소통 역량”</p>
+      </div>
+      <div class="card soft">
+        <div class="kicker">책무성</div>
+        <p class="ctext" style="margin-top:14px;">이의신청 = <span class="bold">루브릭 단계·관찰 근거</span>로 차분히 설명 가능</p>
+      </div>
+    </div>
+    <div class="concl blue" style="margin-top:20px;justify-content:center;">
+      단, AI가 만드는 건 ‘초안’까지 — <span style="text-decoration:underline;">확정은 교사</span>
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">13 / 17</span>
+</section>
+
+<!-- ===================== 14 · 라이브 데모 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>결과 ② · 라이브 데모</span>
+    <h1 class="stitle">직접 봅시다 — 내 폴더를 읽고, 결과를 파일로</h1>
+  </div>
+  <div class="body-fill">
+    <div style="display:grid;grid-template-columns:0.9fr 1.1fr;gap:20px;align-items:start;">
+      <div class="mock">
+        <div class="bar">
+          <i style="background:#ff5f57;"></i><i style="background:#febc2e;"></i><i style="background:#28c840;"></i>
+          <span class="tabrow" style="margin-left:10px;"><span class="tab">Chat</span><span class="tab on">Code</span></span>
+        </div>
+        <div style="padding:16px;font-size:13px;color:var(--ink-muted);line-height:1.7;">
+          <div>📁 평가-2반/</div>
+          <div style="padding-left:14px;">├ 수행기록/</div>
+          <div style="padding-left:14px;">├ 루브릭/</div>
+          <div style="padding-left:14px;">└ 산출물/ <span class="accent">← 결과 저장</span></div>
+          <div style="margin-top:10px;background:var(--canvas-soft);border:1px solid var(--hairline);
+            border-radius:6px;padding:8px;color:var(--green);">+ 채점표.csv &nbsp;<span class="faint">(승인 대기)</span></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div class="li sm"><span class="mk accent">1</span><span>Code 탭(Local)에서 평가 폴더 선택</span></div>
+        <div class="li sm"><span class="mk accent">2</span><span>“수행기록의 1반 메모를 루브릭에 맞춰 번호별로 채점해 산출물 폴더에 표로 저장해줘. CLAUDE.md 원칙 준수.”</span></div>
+        <div class="li sm"><span class="mk accent">3</span><span>변경 미리보기(diff) 확인 → <span class="bold">승인</span> <span class="faint">(승인 전엔 파일이 바뀌지 않음)</span></span></div>
+        <div class="li sm"><span class="mk accent">4</span><span>“같은 기록으로 번호별 과세특 초안을 ‘사실 → 역량’ 양식으로” → 파일 저장</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;justify-content:center;">
+      <span class="pill">🔒 비식별(번호만) 데이터</span>
+      <span class="pill blue">초안까지가 AI, 확정은 교사</span>
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">14 / 17</span>
+</section>
+
+<!-- ===================== 15 · 가드레일 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>안전</span>
+    <h1 class="stitle">이것만은 반드시 — 안전 가드레일</h1>
+  </div>
+  <div class="body-fill">
+    <div class="grid2" style="gap:12px 18px;flex:1;align-content:center;">
+      <div class="check"><span class="box">✓</span><span><span class="bold">비식별화</span> — 실명·학번·생년월일 금지, 명렬은 번호만</span></div>
+      <div class="check"><span class="box">✓</span><span><span class="bold">교사 최종 판단·책임</span> — AI는 초안까지, 확정은 사람</span></div>
+      <div class="check"><span class="box">✓</span><span><span class="bold">승인 모드 유지</span> — 변경 미리보기 후 승인하는 습관</span></div>
+      <div class="check"><span class="box">✓</span><span><span class="bold">근거 보존</span> — 점수·기록의 출처(관찰·루브릭 단계)를 남긴다</span></div>
+      <div class="check"><span class="box">✓</span><span><span class="bold">기관 지침 확인</span> — 경남교육청·학교 규정, 매년 점검</span></div>
+      <div class="check"><span class="box">✓</span><span><span class="bold">저장소 위생</span> — 공개엔 템플릿·공개문서만, 실데이터는 비공개/로컬에만</span></div>
+    </div>
+    <div class="concl" style="margin-top:18px;justify-content:center;font-size:20px;">
+      최종 판단·책임은 <span style="text-decoration:underline;text-underline-offset:4px;">교사</span>
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">15 / 17</span>
+</section>
+
+<!-- ===================== 16 · 막힐 때 대비 ===================== -->
+<section class="page">
+  <div class="shead">
+    <span class="eyebrow"><span class="dot"></span>마무리 준비</span>
+    <h1 class="stitle">막힐 때를 대비, 그리고 가져갈 것</h1>
+  </div>
+  <div class="body-fill">
+    <div class="grid2" style="flex:1;">
+      <div class="card elev">
+        <div class="stripe" style="background:var(--orange);"></div>
+        <div class="ctitle sm">플랜 B</div>
+        <p class="ctext" style="margin-top:12px;">데모 녹화 영상 <span class="arrow">+</span> 결과 파일 캡처</p>
+        <p class="ctext sm faint" style="margin-top:10px;">실시간 데모 실패에 대비한 백업</p>
+      </div>
+      <div class="card elev" style="display:flex;flex-direction:column;">
+        <div class="stripe" style="background:var(--teal);"></div>
+        <div class="ctitle sm">자료</div>
+        <p class="ctext" style="margin-top:12px;">워크숍 자료 = <span class="bold">공유 저장소 그 자체</span></p>
+        <div style="margin-top:14px;display:flex;align-items:center;gap:14px;">
+          <div style="width:74px;height:74px;border:2px dashed var(--ink-faint);border-radius:var(--r-md);
+            display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:12px;">QR</div>
+          <span class="ctext sm faint">링크/QR 한 번으로 받기</span>
+        </div>
+      </div>
+    </div>
+    <div class="concl blue" style="margin-top:20px;justify-content:center;font-size:20px;">
+      월요일에 할 단 하나 — 저장소를 가져와 CLAUDE.md 한 줄(우리 반)만 고치기
+    </div>
+  </div>
+  <span class="brandmark">평가 작업틀 × Claude Code</span>
+  <span class="pageno">16 / 17</span>
+</section>
+
+<!-- ===================== 17 · 마무리 ===================== -->
+<section class="page dark">
+  <span class="sticker" style="width:12px;height:12px;background:var(--pink);top:110px;left:160px;"></span>
+  <span class="sticker" style="width:9px;height:9px;background:var(--sky);top:160px;left:1090px;"></span>
+  <span class="sticker" style="width:14px;height:14px;background:var(--green);top:600px;left:200px;"></span>
+  <span class="sticker" style="width:10px;height:10px;background:var(--orange);top:580px;left:1060px;"></span>
+  <div class="shead" style="margin-bottom:24px;">
+    <span class="eyebrow" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);color:#fff;">
+      <span class="dot" style="background:var(--sky);"></span>마무리</span>
+    <h1 class="stitle" style="color:#fff;">오늘을 세 문장으로</h1>
+  </div>
+  <div class="body-fill" style="justify-content:center;gap:18px;">
+    <div style="display:flex;align-items:baseline;gap:18px;">
+      <span style="font-size:34px;font-weight:700;color:var(--sky);">①</span>
+      <span style="font-size:28px;font-weight:600;line-height:1.4;">즉흥이 아니라 <span style="font-weight:800;">평가 작업틀</span>로 — 한 번 만들어 반복한다</span>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:18px;">
+      <span style="font-size:34px;font-weight:700;color:var(--sky);">②</span>
+      <span style="font-size:28px;font-weight:600;line-height:1.4;">도구는 하나로 충분 — 내 파일을 직접 읽고 쓰는 <span style="font-weight:800;">Code 탭</span></span>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:18px;">
+      <span style="font-size:34px;font-weight:700;color:var(--sky);">③</span>
+      <span style="font-size:28px;font-weight:600;line-height:1.4;">판단은 사람이 — 초안까지가 AI, <span style="font-weight:800;">확정은 교사</span></span>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,.18);padding-top:20px;display:flex;
+    justify-content:space-between;align-items:center;">
+    <span style="font-size:18px;color:rgba(255,255,255,.85);font-style:italic;">
+      저경력은 약점이 아니다 — 좋은 틀을 일찍 만들면 평생 자산이 된다</span>
+    <span style="font-size:15px;color:rgba(255,255,255,.6);">Q&amp;A · 자료 링크</span>
+  </div>
+  <span class="pageno">17 / 17</span>
+</section>
+
+</body>
+</html>

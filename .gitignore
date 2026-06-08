@@ -34,6 +34,7 @@ _archive/
 topics/*
 !topics/hangul-600/
 !topics/_template/
+!topics/edutech-eval-harness/
 !topics/vibe-coding-class/
 !topics/vibe-coding-class/**
 topics/vibe-coding-class/.DS_Store
