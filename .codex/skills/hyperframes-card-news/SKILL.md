@@ -30,6 +30,8 @@ description: >-
 
 카드를 작성하거나 수정할 때는 해당 하위 스킬을 함께 적용한다. **이 4개 외의 카드 타입이나 `data-skill` 값은 만들지 않는다.**
 
+AI 뉴스의 표지·대표 이미지를 새로 만들거나 교체할 때는 보조 스킬 `hyperframes-card-news-fomo-image-direction`도 함께 적용한다. 이 보조 스킬은 사실을 시각적 은유와 이미지 프롬프트로 번역하지만 새 카드 타입을 정의하지 않는다.
+
 기존 `hyperframes-slide-work-*` 스킬(1920×1080, 16:9)과는 완전히 다른 포맷이다. 카드뉴스는 모바일 피드에서 읽히므로:
 - 폰트가 크다 (body ≥ 40px)
 - 카드당 정보량이 적다 (한 카드 = 한 메시지)
@@ -58,10 +60,13 @@ cp .codex/skills/hyperframes-card-news/template-portrait.html topics/<주제-이
 
 # 2. meta.json 수정 (id / name을 <주제-이름>으로)
 
-# 3. 4개 템플릿(photo-cover / video-cover / stat / image-feature)을 조합해 카드 구성
+# 3. AI 뉴스 표지라면 fomo-image-direction으로 A/B/C 이미지 콘셉트를 먼저 기획
+#    공식 자산 우선, 생성 이미지의 글자·로고·UI 오류를 제거하고 한 시안을 선택
+
+# 4. 4개 템플릿(photo-cover / video-cover / stat / image-feature)을 조합해 카드 구성
 #    각 카드 구현은 hyperframes-card-news-work-* 하위 스킬을 따른다.
 
-# 4. 검증
+# 5. 검증
 npx hyperframes lint topics/<주제-이름>
 ```
 
@@ -140,7 +145,7 @@ tl.from("#c-1 .hook-title .line", { y: 40, opacity: 0, duration: 0.7, ease: "exp
 tl.from("#c-1 .page-indicator",   { opacity: 0, duration: 0.5, ease: "power2.out" }, s + 2.0);
 ```
 
-**사진 소싱**: 드라마틱한 포트레이트·이벤트·제품 클로즈업이 카드뉴스에서 가장 많이 쓰임. 반드시 `assets/` 로컬 다운로드 후 상대경로 참조.
+**사진 소싱**: 공식 제품 이미지·스크린샷·사용 허가가 명확한 실사를 우선한다. AI 뉴스 표지는 `hyperframes-card-news-fomo-image-direction`으로 주인공 하나, 기사 고유 사물 하나, 시각적 은유 하나를 먼저 정한다. 어느 기사에도 붙일 수 있는 generic AI 작업실·로봇·홀로그램은 쓰지 않는다. 최종 자산은 반드시 `assets/`에 로컬 저장하고 상대경로로 참조한다.
 
 ### 2. video-cover — 전면 짧은 영상 후킹
 
@@ -384,6 +389,8 @@ $ 1,000+
 - [ ] variant 결정 (portrait / square)
 - [ ] 총 카드 수 결정 (3–7 권장)
 - [ ] 각 카드의 템플릿 타입 미리 매핑 (첫 카드 = photo-cover or video-cover)
+- [ ] AI 뉴스라면 핵심 사실과 날짜를 2개 이상 출처로 교차 확인
+- [ ] `hyperframes-card-news-fomo-image-direction`으로 사실/인물/은유 A/B/C 표지 방향 결정
 
 작성 중:
 - [ ] 모든 카드에 `class="card clip"` + timing 속성
@@ -397,4 +404,6 @@ $ 1,000+
 완성 후:
 - [ ] `npx hyperframes lint topics/<주제>` → 0 errors
 - [ ] overview.html 생성 + HTTP 서버로 브라우저 확인
+- [ ] 오버뷰의 320px 내외 축소 썸네일에서 표지 주인공과 사건이 1초 안에 읽히는지 확인
+- [ ] AI 생성·연출 이미지가 실제 현장 사진으로 오해되지 않도록 카드 또는 캡션에 표시
 - [ ] `npx hyperframes render` 로 mp4 생성, 모바일에서 실제 열어보기
