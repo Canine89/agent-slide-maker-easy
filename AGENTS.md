@@ -14,6 +14,7 @@
 |---|---|
 | 16:9 발표/설명 슬라이드 | `hyperframes-slide` |
 | 인스타그램/SNS 카드뉴스 | `hyperframes-card-news` |
+| AI 뉴스 표지 이미지·FOMO 후킹·생성 프롬프트 | `hyperframes-card-news-fomo-image-direction` (카드뉴스 보조 스킬) |
 | 정적 오버뷰 생성·서빙·편집 기능 포함 | `hyperframes-overview` |
 | 오버뷰 패치 반영·Edit 기능 보강 | `hyperframes-overview-edit` (오버뷰 하위 모듈) |
 | CLI/프레임워크 세부 문법 확인 | `hyperframes`, `hyperframes-cli` |
@@ -113,6 +114,24 @@ grep -L "class=\"edit-btn\"" topics/*/overview.html
 - `question`, `timeline`, `quote`, `closing`, `title-bullets` 같은 임의 카드 타입을 만들지 않는다.
 - 새 카드뉴스를 만들거나 카드 타입을 수정할 때는 `hyperframes-card-news`를 먼저 적용하고, 해당 하위 스킬을 함께 따른다.
 - 16:9 발표 슬라이드에는 이 규칙을 쓰지 않는다.
+
+### AI 뉴스 FOMO 이미지 디렉션
+
+AI 뉴스의 표지·대표 이미지를 새로 만들거나 교체할 때는 `hyperframes-card-news-fomo-image-direction`을 보조 스킬로 함께 적용한다.
+
+1. `hyperframes-card-news`로 전체 카드 구조와 허용 타입을 정한다.
+2. `hyperframes-card-news-fomo-image-direction`으로 사실 확인, 시각적 은유, A/B/C 이미지 시안을 정한다.
+3. 실제 카드는 `hyperframes-card-news-work-photo-cover` 또는 `hyperframes-card-news-work-image-feature` 규칙으로 구현한다.
+4. 오버뷰의 축소 썸네일에서 주인공과 사건이 1초 안에 읽히는지 확인한다.
+
+| 의도 | 구현 템플릿 | 라우팅 |
+|---|---|---|
+| 속보·출시·가격·보안 훅 | `photo-cover` | 이미지 디렉션 → photo-cover 스킬 |
+| 제품·스크린샷·맥락 설명 | `image-feature` | 이미지 디렉션 → image-feature 스킬 |
+| 움직임 자체가 증거인 현장 | `video-cover` | video-cover 스킬 직접 적용 |
+| 검증된 숫자가 주인공 | `stat` | stat 스킬 직접 적용 |
+
+이 스킬은 카드 타입이 아니다. `fomo`, `hook`, `fomo-image` 같은 새 `data-skill` 값을 만들지 않는다.
 
 ## Typography
 
